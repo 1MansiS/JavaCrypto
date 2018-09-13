@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+    id "com.zyxist.chainsaw" version "0.3.1"
+}
+
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.10
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    //testCompile group: 'junit', name: 'junit', version: '4.12'
+}
