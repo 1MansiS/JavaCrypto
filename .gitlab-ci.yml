@@ -10,7 +10,9 @@ before_script:
 build-master:
   stage: build
   script:
-    - docker build --pull -t 1mansis/javacrypto .
+    #- docker build --pull -t 1mansis/javacrypto .
+    #- docker push "$CI_REGISTRY_IMAGE"
+    - docker build -t javacrypto .
     - docker push "$CI_REGISTRY_IMAGE"
   only:
     - web
