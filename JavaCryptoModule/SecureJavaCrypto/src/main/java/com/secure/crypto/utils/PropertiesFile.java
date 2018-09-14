@@ -16,7 +16,7 @@ public class PropertiesFile {
 
         try {
             cryptoProps.load(PropertiesFile.class.getClassLoader().getResourceAsStream(cryptoConfigPath));
-        } catch (IOException e) {System.out.println("Exception: can't find properties file " +  " " + e.getMessage() ) ; System.exit(1);}
+        } catch (IOException e) {System.out.println("Exception: can't find properties file " +  " Error message " + e.getMessage() ) ; System.exit(1);}
 
         return cryptoProps.getProperty(property);
     }

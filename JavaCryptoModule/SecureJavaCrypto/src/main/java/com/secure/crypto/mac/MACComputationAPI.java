@@ -26,11 +26,11 @@ public class MACComputationAPI {
 
         try {
             mac = Mac.getInstance(propertiesFile.getPropertyValue("HMAC_ALGORITHM"));
-        } catch (NoSuchAlgorithmException e) {System.out.println("Exception: Algorithm " + propertiesFile.getPropertyValue("HMAC_ALGORITHM") + " not supported by default provider"); System.exit(1);}
+        } catch (NoSuchAlgorithmException e) {System.out.println("Exception: Algorithm " + propertiesFile.getPropertyValue("HMAC_ALGORITHM") + " not supported by default provider. Error message " + e.getMessage()); System.exit(0);}
 
         try {
             mac.init(new SecretKeySpec(encodedKey, 0 , encodedKey.length, propertiesFile.getPropertyValue("HMAC_ALGORITHM")));
-        } catch (InvalidKeyException e) {System.out.println("Exception: Key not valid"); System.exit(0);}
+        } catch (InvalidKeyException e) {System.out.println("Exception: Key not valid. Error message " + e.getMessage()); System.exit(0);}
 
         mac.update(content.getBytes());
 

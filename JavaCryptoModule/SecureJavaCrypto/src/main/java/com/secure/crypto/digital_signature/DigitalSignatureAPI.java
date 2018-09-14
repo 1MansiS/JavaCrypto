@@ -21,29 +21,28 @@ public class DigitalSignatureAPI {
 
         Signature sign = null;
 
-
         try {
             sign = Signature.getInstance(propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO"),propertiesFile.getPropertyValue("DIGITAL_SIGNATURE_PROVIDER"));
-        } catch (NoSuchAlgorithmException|NoSuchProviderException e) {System.out.println("Exception: " +propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO")+ "not supported by default "+ " provider" ); System.exit(0);}
+        } catch (NoSuchAlgorithmException|NoSuchProviderException e) {System.out.println("Exception: " +propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO")+ "not supported by default "+ " provider. Error message " + e.getMessage() ); System.exit(0);}
 
         PrivateKey privateKey = null;
         try {
             privateKey = KeyFactory.getInstance(propertiesFile.getPropertyValue("ASYMMETRIC_ALGO")).generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(encodedPrivateKey)));
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException  e) {System.out.println("Exception: Can't retrieve private key " + e.getMessage());System.exit(0);}
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException  e) {System.out.println("Exception: Can't retrieve private key. Error message " + e.getMessage());System.exit(0);}
 
         try {
             sign.initSign(privateKey);
-        } catch (InvalidKeyException e) {System.out.println("Exception: Key is invalid");  System.exit(0);}
+        } catch (InvalidKeyException e) {System.out.println("Exception: Key is invalid. Error message. Error message " + e.getMessage());  System.exit(0);}
 
         try {
             sign.update(data.getBytes());
-        } catch (SignatureException e) {System.out.print("Exception: Problem with data to be signed"); System.exit(0);}
+        } catch (SignatureException e) {System.out.print("Exception: Problem with data to be signed. Error message " + e.getMessage()); System.exit(0);}
 
         byte[] signArray = new byte[0];
 
         try {
             signArray = sign.sign();
-        } catch (SignatureException e) {System.out.println("Exception: While generating signature"); System.exit(0);}
+        } catch (SignatureException e) {System.out.println("Exception: While generating signature. Error message " + e.getMessage()); System.exit(0);}
 
         return Base64.getEncoder().encodeToString(signArray);
 
@@ -61,7 +60,7 @@ public class DigitalSignatureAPI {
 
         try {
             verify = Signature.getInstance(propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO"),propertiesFile.getPropertyValue("DIGITAL_SIGNATURE_PROVIDER"));
-        } catch (NoSuchAlgorithmException|NoSuchProviderException e) {System.out.println("Exception: " +propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO")+ "not supported by default "+ " provider" ); System.exit(0);}
+        } catch (NoSuchAlgorithmException|NoSuchProviderException e) {System.out.println("Exception: " +propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO")+ "not supported by default "+ " provider. Error message " + e.getMessage() ); System.exit(0);}
 
 
         PublicKey publicKey = null;
@@ -73,11 +72,11 @@ public class DigitalSignatureAPI {
 
         try {
             verify.initVerify(publicKey);
-        } catch (InvalidKeyException e) {System.out.println("Exception: Key is invalid");  System.exit(0);}
+        } catch (InvalidKeyException e) {System.out.println("Exception: Key is invalid. Error message " + e.getMessage());  System.exit(0);}
 
         try {
             verify.update(data.getBytes());
-        } catch (SignatureException e) {System.out.print("Exception: Problem with data to be signed"); System.exit(0);}
+        } catch (SignatureException e) {System.out.print("Exception: Problem with data to be signed. Error message " + e.getMessage()); System.exit(0);}
 
         boolean isVerified = false;
         try {

@@ -10,13 +10,11 @@ import java.util.Base64;
 
 public class CipherAPI {
 
-    //private static int TAG_BIT_LENGTH = 128 ;
-    //private static String ALGO_TRANSFORMATION_STRING = "AES/GCM/PKCS5Padding" ;
-    //private static String ENC_ALGO = "AES";
-
     private PropertiesFile propertiesFile = new PropertiesFile();
 
     /*
+    Exported API to perform Encryption
+
     @param key == Base64 endoded SecretKey
     @param initializationVector == Base64 encoded CSPRNG
     @param aad = Server Name
@@ -31,12 +29,13 @@ public class CipherAPI {
         byte[] cipherArray = null ;
         try {
             cipherArray =  cipher.doFinal(plainText.getBytes());
-        } catch (IllegalBlockSizeException | BadPaddingException e) {System.out.println("Exception: while trying to perform encryption");}
+        } catch (IllegalBlockSizeException | BadPaddingException e) {System.out.println("Exception: while trying to perform encryption. Error message " + e.getMessage());}
 
         return Base64.getEncoder().encodeToString(cipherArray);
     }
 
     /*
+    Exported API to perform Decryption
     @param key == Base64 endoded SecretKey
     @param intializationvector == Base64 encoded CSPRNG
     @param aad = Server Name
@@ -51,29 +50,34 @@ public class CipherAPI {
 
         try {
             plainTextArray = cipher.doFinal(Base64.getDecoder().decode(cipherText));
-        } catch (IllegalBlockSizeException | BadPaddingException e) {System.out.println("Exception: while trying to perform encryption");}
+        } catch (IllegalBlockSizeException | BadPaddingException e) {System.out.println("Exception: while trying to perform encryption. Error message " + e.getMessage() );}
 
         return new String(plainTextArray);
 
     }
 
+    /*
+    To avoid code duplication, since Cipher initialization is almost identical for encryption & decryption.
+     */
     private Cipher initializeCipher(String key, String intializationVector, String aad, int mode) {
 
+        // Initialize GCM Parameters
+        // Same key, IV and GCM Specs are to be used for encryption and decryption.
         GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(Integer.parseInt(propertiesFile.getPropertyValue("TAG_BIT_LENGTH")), Base64.getDecoder().decode(intializationVector));
 
         Cipher cipher = null ;
 
         try {
             cipher = Cipher.getInstance(propertiesFile.getPropertyValue("ALGO_TRANSFORMATION_STRING"));
-        } catch (NoSuchAlgorithmException |NoSuchPaddingException e) {System.out.println("Exception: While trying to get Cipher instance with " + propertiesFile.getPropertyValue("ALGO_TRANSFORMATION_STRING") + "transformation "); System.exit(1);}
+        } catch (NoSuchAlgorithmException |NoSuchPaddingException e) {System.out.println("Exception: While trying to get Cipher instance with " + propertiesFile.getPropertyValue("ALGO_TRANSFORMATION_STRING") + "transformation. Error message " + e.getMessage()); System.exit(1);}
 
         SecretKey aesKey = getSecretKeyFromByteArray(Base64.getDecoder().decode(key));
 
         try {
             cipher.init(mode, aesKey, gcmParameterSpec, new SecureRandom());
-        } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {System.out.println("Exception: While trying to instantiate Cipher with " + propertiesFile.getPropertyValue("ALGO_TRANSFORMATION_STRING") + "transformation for encryption"); System.exit(1);}
+        } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {System.out.println("Exception: While trying to instantiate Cipher with " + propertiesFile.getPropertyValue("ALGO_TRANSFORMATION_STRING") + "transformation for encryption. Error message " + e.getMessage()); System.exit(1);}
 
-        cipher.updateAAD(aad.getBytes());
+        cipher.updateAAD(aad.getBytes()); // add AAD tag data before encrypting or decryption
 
         return cipher;
     }

@@ -25,7 +25,7 @@ public class SymmetricKeyGeneration {
             keygen.init(Integer.parseInt(propertiesFile.getPropertyValue("AES_KEY_SIZE"))); // Specifying Key size to be used, Note: This would need JCE Unlimited Strength to be installed explicitly
             aesKey = keygen.generateKey();
 
-        } catch (NoSuchAlgorithmException e) {System.out.println("Algorithm " + propertiesFile.getPropertyValue(algo) + " not supported by provider " +keygen.getProvider().toString()); System.exit(1);}
+        } catch (NoSuchAlgorithmException e) {System.out.println("Algorithm " + propertiesFile.getPropertyValue(algo) + " not supported by provider " +keygen.getProvider().toString() + ". Error message " + e.getMessage()); System.exit(0);}
 
         return Base64.getEncoder().encodeToString(aesKey.getEncoded());
     }

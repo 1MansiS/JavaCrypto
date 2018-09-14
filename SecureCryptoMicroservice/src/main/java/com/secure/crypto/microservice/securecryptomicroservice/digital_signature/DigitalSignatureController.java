@@ -21,15 +21,15 @@ public class DigitalSignatureController {
     @param data == Plain text Data to be signed
     @return == Base64 encoded digital signature
      */
-    @GetMapping("digital_signature_sign/{data}")
-    public @ResponseBody String sign(@PathVariable String data) {
+    @PostMapping("digital_signature_sign")
+    public @ResponseBody String sign(String data) {
         String[] keyPairs = asymmetricKeyGeneration.generateAsymmetricKey();
 
-        // KMS should be used to manage keys. For sake of this demo, using file storage for persistance.
+        // SECURITY RISK, to persist cryptographic keying material on disk. A KMS should be used Done here for sake of KISS (Keeping it simple and stupid)
         filePersistance.persistCipherMaterial(keyPairs[0],PRIVATE_KEY_FILE);
         filePersistance.persistCipherMaterial(keyPairs[1],PUBLIC_KEY_FILE);
 
-        return digitalSignatureAPI.sign(data,filePersistance.readCipherMaterial(PRIVATE_KEY_FILE));
+        return digitalSignatureAPI.sign(data,filePersistance.readCipherMaterial(PRIVATE_KEY_FILE)) + "\n";
     }
 
     /*

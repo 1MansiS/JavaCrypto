@@ -15,7 +15,7 @@ public class AsymmetricKeyGeneration {
         KeyPairGenerator keyPairGenerator = null;
         try {
             keyPairGenerator = KeyPairGenerator.getInstance(propertiesFile.getPropertyValue("ASYMMETRIC_ALGO"));
-        } catch (NoSuchAlgorithmException e) {System.out.println("Exception: " + propertiesFile.getPropertyValue("ASYMMETRIC_ALGO")+ " not supported by default provider" + keyPairGenerator.getProvider().getName());}
+        } catch (NoSuchAlgorithmException e) {System.out.println("Exception: " + propertiesFile.getPropertyValue("ASYMMETRIC_ALGO")+ " not supported by default provider" + keyPairGenerator.getProvider().getName() + " Error message " + e.getMessage() ); System.exit(0);}
 
         keyPairGenerator.initialize(Integer.parseInt(propertiesFile.getPropertyValue("ASYMMETRIC_KEY_SIZE")));
 
