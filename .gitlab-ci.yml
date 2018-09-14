@@ -10,7 +10,7 @@ services:
 build-master:
   stage: build
   script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
+    - docker build --pull -t javacrypto .
     - docker push "$CI_REGISTRY_IMAGE"
   only:
     - web
