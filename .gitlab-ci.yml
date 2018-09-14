@@ -13,7 +13,7 @@ build-master:
     #- docker build --pull -t 1mansis/javacrypto .
     #- docker push "$CI_REGISTRY_IMAGE"
     - docker build -t javacrypto .
-    - docker push "$CI_REGISTRY_IMAGE"
+    - docker push "javacrypto"
   only:
     - web
     
