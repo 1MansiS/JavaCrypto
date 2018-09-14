@@ -1,4 +1,4 @@
-Above code base, has a Java Module (JavaCryptoModule), which exposes apis, responsible for performing various cryptographic primitives in a most secure way possible thru JCA. 
+Above code base, has a Java Module (`JavaCryptoModule`), which exposes apis, responsible for performing various cryptographic primitives in a most secure way possible thru JCA. 
 
 This module has support for performing:
 
@@ -12,7 +12,7 @@ This module has support for performing:
 
 Docker image can be downloaded from [docker.hub](https://hub.docker.com/r/1mansis/javacrypto/), which should build and setup all above for anyone who wishes to experiment with this. 
 
-**Docker setup:**
+# Docker setup:
 
 ```
 docker pull docker pull 1mansis/javacrypto
@@ -21,7 +21,7 @@ docker run 1mansis/jaavcrypto -p 8080:8080
 
 Once you have the image going, follow corresponding sections below on how to use various micro service endpoints:
 
-**Encryption/Decryption:**
+## Encryption/Decryption:
 
 ```
 bash-3.2$ curl -X POST 'http://localhost:8080/encrypt' --data-urlencode "plain_text=Hello World of Cryptography with Java 10"
@@ -32,14 +32,14 @@ Hello World of Cryptography with Java 10
 
 **Note:** Cryptographic keying material is being persisted on file system. Thus, decryption should immediately follow encryption, to be successful.
 
-**Message Digest:**
+## Message Digest:
 
 ```
 bash-3.2$ curl -X POST 'http://localhost:8080/message_digest' --data-urlencode "data=Hello World of Cryptography with Java 10"
 56zhjuEo8+3krBDAqneHGtMcMg1tmgbuQH7GQGLM54O5of3mYWWKZeZVT+gAAtpZr4Cxl6S9NFhveFKi6+GnVA==
 ```
 
-**Message Authentication Code:**
+## Message Authentication Code:
 
 ```
 bash-3.2$ curl -X POST 'http://localhost:8080/mac_sender' --data-urlencode "data=Hello World of Cryptography with Java 10"
@@ -49,7 +49,7 @@ true
 bash-3.2$ 
 ```
 
-**Digital Signature:**
+## Digital Signature:
 
 ```
 bash-3.2$ curl -X POST 'http://localhost:8080/digital_signature_sign' --data-urlencode "data=Hello World of Cryptography with Java 10"
@@ -65,8 +65,6 @@ bash-3.2$
 * A matured Key Management System (for e.g. AWS KMS, vault, Safenet etc), should be used for any kind of key material management (like encryption keys, initialization vectors etc) management. Just to keep above microservice, as a simple demo on how to use Java crypto module, I have taken various shortcuts. One of them being persisting cyptographic materials. This should **NOT** be done in real world applications. 
 * Every effort is being taken to keep above microservice stateless. This mitigates  complicated 2 way ssl, and certificate management. But, make sure all communication is happening over https.
 
-# Slides Changes:
-	Slide 6: Add NaCl/Google Tink
 	
 # References:
 1. https://security.googleblog.com/2018/08/introducing-tink-cryptographic-software.html
