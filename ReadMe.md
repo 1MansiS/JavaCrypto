@@ -67,4 +67,5 @@ bash-3.2$
 
 	
 # References:
-1. https://security.googleblog.com/2018/08/introducing-tink-cryptographic-software.html
+1. [Google Tink Cryptographic Software](https://security.googleblog.com/2018/08/introducing-tink-cryptographic-software.html)
+2. [Bouncy Castle Provider Installation](http://www.bouncycastle.org/wiki/display/JA1/Provider+Installation)

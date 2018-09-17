@@ -7,10 +7,12 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class DigitalSignatureAPI {
 
     private PropertiesFile propertiesFile = new PropertiesFile();
+
     /*
     @param data : plain text data
     @param privateKey: Base64 encoded Private Key
@@ -19,16 +21,21 @@ public class DigitalSignatureAPI {
      */
     public String sign(String data, String encodedPrivateKey) {
 
+        Security.addProvider(new BouncyCastleProvider());
+
         Signature sign = null;
 
         try {
             sign = Signature.getInstance(propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO"),propertiesFile.getPropertyValue("DIGITAL_SIGNATURE_PROVIDER"));
-        } catch (NoSuchAlgorithmException|NoSuchProviderException e) {System.out.println("Exception: " +propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO")+ "not supported by default "+ " provider. Error message " + e.getMessage() ); System.exit(0);}
+        } catch (NoSuchAlgorithmException|NoSuchProviderException e) {System.out.println("Exception: " +propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO")+ "not supported by provider. Error message " + e.getMessage() ); System.exit(0);}
 
         PrivateKey privateKey = null;
+
         try {
             privateKey = KeyFactory.getInstance(propertiesFile.getPropertyValue("ASYMMETRIC_ALGO")).generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(encodedPrivateKey)));
         } catch (InvalidKeySpecException | NoSuchAlgorithmException  e) {System.out.println("Exception: Can't retrieve private key. Error message " + e.getMessage());System.exit(0);}
+
+        System.out.println("Public Key algorithm  " + privateKey.getAlgorithm() + " format == " + privateKey.getFormat());
 
         try {
             sign.initSign(privateKey);
@@ -56,18 +63,25 @@ public class DigitalSignatureAPI {
      */
     public boolean verify(String data, String encodedPublicKey, String encodedSignature) {
 
+        Security.addProvider(new BouncyCastleProvider());
+
         Signature verify = null;
 
         try {
             verify = Signature.getInstance(propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO"),propertiesFile.getPropertyValue("DIGITAL_SIGNATURE_PROVIDER"));
-        } catch (NoSuchAlgorithmException|NoSuchProviderException e) {System.out.println("Exception: " +propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO")+ "not supported by default "+ " provider. Error message " + e.getMessage() ); System.exit(0);}
+        } catch (NoSuchAlgorithmException|NoSuchProviderException e) {System.out.println("Exception: " +propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO")+ "not supported by provider. Error message " + e.getMessage() ); System.exit(0);}
 
 
         PublicKey publicKey = null;
 
+
+
         try {
             publicKey = KeyFactory.getInstance(propertiesFile.getPropertyValue("ASYMMETRIC_ALGO")).generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(encodedPublicKey)));
         } catch (InvalidKeySpecException | NoSuchAlgorithmException  e) {System.out.println("Exception: Can't retrieve public key " + e.getMessage());System.exit(0);}
+
+        System.out.println("Public Key algorithm  " + publicKey.getAlgorithm() + " format == " + publicKey.getFormat());
+
 
 
         try {
