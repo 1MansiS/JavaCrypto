@@ -16,6 +16,14 @@ public class FilePersistance {
             writer.write(cipherMaterial);
             writer.close();
         } catch (IOException e) {System.out.print("Exception: While trying to save cipher material in file " + fileName); System.exit(1); }
+        finally{
+            try {
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public String readCipherMaterial(String fileName) {

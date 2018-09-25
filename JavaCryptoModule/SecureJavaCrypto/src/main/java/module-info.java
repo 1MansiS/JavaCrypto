@@ -13,4 +13,6 @@ module SecureJavaCrypto {
     //requires bcprov.jdk16;
     requires org.bouncycastle.provider;
     exports com.secure.crypto.digital_signature;
+
+    exports com.secure.crypto.password_storage;
 }

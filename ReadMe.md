@@ -8,7 +8,9 @@ This module has support for performing:
 * Signing and Verifying Digital Signatures
 * Password Storage
 
-`SecureCryptoMicroservice` showcases, in most simplistic way on how to use JavaCryptoModule. It should be thought as any kind of service for e.g. lambda, or a microservice etc which would need some cryptographic work.
+`SecureCryptoMicroservice` showcases, in most simplistic way on how to use JavaCryptoModule. It should be thought as any kind of service for e.g. lambda, monolithic application, microservice etc which would need some cryptographic work.
+
+**Note:** Service is designed to just showcase how Java Crypto Module can be used out of box. There are various instances (clearly outlined in source code), which would need a secure storage. With the intent of keeping this service simple and stupid, this cryptographic material is being persisted on file system.
 
 Docker image can be downloaded from [docker.hub](https://hub.docker.com/r/1mansis/javacrypto/), which should build and setup all above for anyone who wishes to experiment with this. 
 
@@ -59,7 +61,16 @@ true
 bash-3.2$ 
 
 ```
+**Note:** Public and Private keys are persisted on file system. Thus, verification should follow signing.
 
+## Secure Password Storage and Authentication
+
+```
+bash-3.2$ curl 'http://localhost:8080/calc_passwd_storage' --data-urlencode "plain_text_password=Passw0rd"
+yrEjH50LrXAAqaB3Ky35DV0g8E1f2nXO40qEQfc/QA6OTexyIHJZNoLOJxjEozMnUrv3Ja/j7/OJyo+r77kK2vgrGuyJ1sRMP9C/iRd2hjfbJZ05cBYT8v514lv0RWODTcr1pdBvXG0qPl/f+W82Z9z13Zm+KWxk11e84pRsrlF0EnxAtIChZhzy0zWb4L3c7N9cB41NQ7MozRia75TKxbwsLTnO2i74cdGUsA3WvLyYDs0aCxxKDEisc9GJW4vD7xs/tVv+0SMOvK1B6LE6DA2D+VraDcH638Fb1gYxYLBBatjBjHDJgo8FOkEETS7LVQ0APwWh5j9t2AFQ9Hfmyw==msheth-mbp:SecureCryptoMicroservice msheth$ curl 'http://localhost:808rm public.key 
+bash-3.2$ curl 'http://localhost:8080/authenticate' --data-urlencode "plain_text_password=Passw0rd"
+true
+```
 
 # Security Architecture Must-dos
 * A matured Key Management System (for e.g. AWS KMS, vault, Safenet etc), should be used for any kind of key material management (like encryption keys, initialization vectors etc) management. Just to keep above microservice, as a simple demo on how to use Java crypto module, I have taken various shortcuts. One of them being persisting cyptographic materials. This should **NOT** be done in real world applications. 

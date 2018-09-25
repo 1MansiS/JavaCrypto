@@ -11,11 +11,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Random;
 
 @RestController
 public class SymmetricCipherController {
 
-    private static int IV_SIZE = 96 ;
+    private int IV_SIZE = 96 ;
 
     private String ENC_KEY_FILE_NAME = "encryption.key";
     private String IV_FILE_NAME = "iv.txt";
@@ -35,6 +36,7 @@ public class SymmetricCipherController {
     // For Real World service endpoint, can consider plain_text to be Base64 encoded.
     @PostMapping("encrypt")
     public @ResponseBody String encrypt(String plain_text) {
+
 
         Cipher cipher = new Cipher();
 
