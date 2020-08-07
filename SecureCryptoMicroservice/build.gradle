@@ -18,7 +18,7 @@ apply plugin: 'io.spring.dependency-management'
 
 group = 'com.secure.crypto.microservice'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.10
+sourceCompatibility = 1.14
 
 repositories {
     mavenCentral()
@@ -28,6 +28,5 @@ repositories {
 dependencies {
     compile fileTree(dir : '../JavaCryptoModule/SecureJavaCrypto/build/libs' , includes: ['*.jar'])
     compile('org.springframework.boot:spring-boot-starter-web')
-    compile('org.bouncycastle:bcprov-jdk15on:1.60')
-    testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile('org.bouncycastle:bcprov-jdk15on:1.65.01')	
 }

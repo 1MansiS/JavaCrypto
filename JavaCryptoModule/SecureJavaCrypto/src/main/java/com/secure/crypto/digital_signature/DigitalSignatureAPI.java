@@ -21,13 +21,14 @@ public class DigitalSignatureAPI {
      */
     public String sign(String data, String encodedPrivateKey) {
 
-        Security.addProvider(new BouncyCastleProvider());
+        //Security.addProvider(new BouncyCastleProvider());
 
         Signature sign = null;
 
         try {
-            sign = Signature.getInstance(propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO"),propertiesFile.getPropertyValue("DIGITAL_SIGNATURE_PROVIDER"));
-        } catch (NoSuchAlgorithmException|NoSuchProviderException e) {System.out.println("Exception: " +propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO")+ "not supported by provider. Error message " + e.getMessage() ); System.exit(0);}
+            sign = Signature.getInstance(propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO"));
+            //sign = Signature.getInstance(propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO"),propertiesFile.getPropertyValue("DIGITAL_SIGNATURE_PROVIDER"));
+        } catch (NoSuchAlgorithmException e) {System.out.println("Exception: " +propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO")+ "not supported by provider. Error message " + e.getMessage() ); System.exit(0);}
 
         PrivateKey privateKey = null;
 
@@ -63,13 +64,14 @@ public class DigitalSignatureAPI {
      */
     public boolean verify(String data, String encodedPublicKey, String encodedSignature) {
 
-        Security.addProvider(new BouncyCastleProvider());
+        //Security.addProvider(new BouncyCastleProvider());
 
         Signature verify = null;
 
         try {
-            verify = Signature.getInstance(propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO"),propertiesFile.getPropertyValue("DIGITAL_SIGNATURE_PROVIDER"));
-        } catch (NoSuchAlgorithmException|NoSuchProviderException e) {System.out.println("Exception: " +propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO")+ "not supported by provider. Error message " + e.getMessage() ); System.exit(0);}
+            verify = Signature.getInstance(propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO"));
+            //verify = Signature.getInstance(propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO"),propertiesFile.getPropertyValue("DIGITAL_SIGNATURE_PROVIDER"));
+        } catch (NoSuchAlgorithmException e) {System.out.println("Exception: " +propertiesFile.getPropertyValue("DIGITAL_KEY_ALGO")+ "not supported by provider. Error message " + e.getMessage() ); System.exit(0);}
 
 
         PublicKey publicKey = null;
