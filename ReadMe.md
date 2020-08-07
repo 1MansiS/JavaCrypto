@@ -17,8 +17,8 @@ Docker image can be downloaded from [docker.hub](https://hub.docker.com/r/1mansi
 # Docker setup:
 
 ```
-docker pull docker pull 1mansis/javacrypto
-docker run 1mansis/jaavcrypto -p 8080:8080
+docker pull 1mansis/javacrypto
+docker run -p 8080:8080 1mansis/javacrypto
 ```
 
 Once you have the image going, follow corresponding sections below on how to use various micro service endpoints:
