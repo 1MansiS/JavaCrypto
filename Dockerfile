@@ -15,5 +15,5 @@ RUN gradle clean compileJava assemble --stacktrace
 WORKDIR ../SecureCryptoMicroservice
 RUN gradle clean compileJava assemble --stacktrace
 ENTRYPOINT ["java", "-jar" , "build/libs/SecureCryptoMicroservice-0.0.1-SNAPSHOT.jar"]
-EXPOSE 8080
+#EXPOSE 8080
 
