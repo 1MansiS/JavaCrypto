@@ -1,6 +1,7 @@
 package com.secure.crypto.microservice.securecryptomicroservice.cipher.symmetric.controller;
 
-import com.secure.crypto.cipher.symmetric.CipherAPI;
+import com.secure.crypto.cipher.symmetric.AESCipherAPI;
+
 import com.secure.crypto.key_generation.SymmetricKeyGeneration;
 import com.secure.crypto.microservice.securecryptomicroservice.cipher.symmetric.entity.Cipher;
 import com.secure.crypto.microservice.securecryptomicroservice.utils.FilePersistance;
@@ -23,7 +24,7 @@ public class SymmetricCipherController {
 
     SymmetricKeyGeneration symmetricKeyGeneration = new SymmetricKeyGeneration();
     SecureRandomAPI secureRandomAPI = new SecureRandomAPI();
-    CipherAPI cipherAPI = new CipherAPI();
+    AESCipherAPI cipherAPI = new AESCipherAPI();
     FilePersistance filePersistance = new FilePersistance();
 
     /*
@@ -34,7 +35,7 @@ public class SymmetricCipherController {
      */
 
     // For Real World service endpoint, can consider plain_text to be Base64 encoded.
-    @PostMapping("encrypt")
+    @PostMapping("encrypt-old")
     public @ResponseBody String encrypt(String plain_text) {
 
 
@@ -68,7 +69,7 @@ public class SymmetricCipherController {
     @param: cipher_text: Cipher Text, of plain text generated from above endpoint.
     @return: clear text version of plaintext, or given cipher_text
      */
-    @PostMapping("decrypt")
+    @PostMapping("decrypt-old")
     public @ResponseBody String decrypt(String cipher_text) {
 
         Cipher cipher = new Cipher();
