@@ -1,6 +1,6 @@
 package com.secure.crypto.microservice.securecryptomicroservice.cipher.symmetric.entity;
 
-public class Cipher {
+public class CipherDeprecate {
 
     /*
     Base64 Encoded SecretKey

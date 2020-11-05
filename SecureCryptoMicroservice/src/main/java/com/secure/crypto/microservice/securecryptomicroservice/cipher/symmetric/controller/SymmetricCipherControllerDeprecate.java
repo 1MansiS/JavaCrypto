@@ -3,7 +3,7 @@ package com.secure.crypto.microservice.securecryptomicroservice.cipher.symmetric
 import com.secure.crypto.cipher.symmetric.AESCipherAPI;
 
 import com.secure.crypto.key_generation.SymmetricKeyGeneration;
-import com.secure.crypto.microservice.securecryptomicroservice.cipher.symmetric.entity.Cipher;
+import com.secure.crypto.microservice.securecryptomicroservice.cipher.symmetric.entity.CipherDeprecate;
 import com.secure.crypto.microservice.securecryptomicroservice.utils.FilePersistance;
 import com.secure.crypto.secure_random.SecureRandomAPI;
 
@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Random;
 
 @RestController
-public class SymmetricCipherController {
+public class SymmetricCipherControllerDeprecate {
 
     private int IV_SIZE = 96 ;
 
@@ -39,28 +38,28 @@ public class SymmetricCipherController {
     public @ResponseBody String encrypt(String plain_text) {
 
 
-        Cipher cipher = new Cipher();
+        CipherDeprecate cipherDeprecate = new CipherDeprecate();
 
-        cipher.setKey(symmetricKeyGeneration.generateSymmetricKey("ENC_ALGO")); // In real world situation, u should be using a Key Management Service.
+        cipherDeprecate.setKey(symmetricKeyGeneration.generateSymmetricKey("ENC_ALGO")); // In real world situation, u should be using a Key Management Service.
 
         // SECURITY RISK, to persist cryptographic keying material on disk. A KMS should be used. Done here for sake of KISS (Keeping it simple and stupid)
-        filePersistance.persistCipherMaterial(cipher.getKey(), ENC_KEY_FILE_NAME);
+        filePersistance.persistCipherMaterial(cipherDeprecate.getKey(), ENC_KEY_FILE_NAME);
 
-        cipher.setInitializationVector(secureRandomAPI.generateCSPRNG(IV_SIZE));
+        cipherDeprecate.setInitializationVector(secureRandomAPI.generateCSPRNG(IV_SIZE));
 
         // SECURITY RISK, to persist cryptographic keying material on disk. Done here for sake of KISS (Keeping it simple and stupid)
         // IV should be persisted for use in decryption process.
         // Use different key+IV pair for encrypting/decrypting different data. Make sure not to repeat Key + IV pair, for encrypting more than one plaintext.
-        filePersistance.persistCipherMaterial(cipher.getInitializationVector(), IV_FILE_NAME);
+        filePersistance.persistCipherMaterial(cipherDeprecate.getInitializationVector(), IV_FILE_NAME);
 
-        cipher.setData(plain_text);
+        cipherDeprecate.setData(plain_text);
 
         try {
             // Any random data can be used as tag. One of common example could be domain name... Should be same on decryption side as well.
-            cipher.setAad(InetAddress.getLocalHost().getCanonicalHostName());
-        } catch (UnknownHostException e) {System.out.println("Exception: While trying to get AAD data " + cipher.getAad() + " Error message " + e.getMessage());}
+            cipherDeprecate.setAad(InetAddress.getLocalHost().getCanonicalHostName());
+        } catch (UnknownHostException e) {System.out.println("Exception: While trying to get AAD data " + cipherDeprecate.getAad() + " Error message " + e.getMessage());}
 
-        return cipherAPI.encrypt(cipher.getKey(), cipher.getInitializationVector(), cipher.getAad(), cipher.getData()) + "\n";
+        return cipherAPI.encrypt(cipherDeprecate.getKey(), cipherDeprecate.getInitializationVector(), cipherDeprecate.getAad(), cipherDeprecate.getData()) + "\n";
 
     }
 
@@ -72,16 +71,16 @@ public class SymmetricCipherController {
     @PostMapping("decrypt-old")
     public @ResponseBody String decrypt(String cipher_text) {
 
-        Cipher cipher = new Cipher();
+        CipherDeprecate cipherDeprecate = new CipherDeprecate();
 
-        cipher.setKey(filePersistance.readCipherMaterial(ENC_KEY_FILE_NAME));
-        cipher.setInitializationVector(filePersistance.readCipherMaterial(IV_FILE_NAME));
+        cipherDeprecate.setKey(filePersistance.readCipherMaterial(ENC_KEY_FILE_NAME));
+        cipherDeprecate.setInitializationVector(filePersistance.readCipherMaterial(IV_FILE_NAME));
 
         try {
-            cipher.setAad(InetAddress.getLocalHost().getCanonicalHostName()); // Needn't be super secret.
-        } catch (UnknownHostException e) {System.out.println("Exception: While trying to get AAD data " + cipher.getAad());}
+            cipherDeprecate.setAad(InetAddress.getLocalHost().getCanonicalHostName()); // Needn't be super secret.
+        } catch (UnknownHostException e) {System.out.println("Exception: While trying to get AAD data " + cipherDeprecate.getAad());}
 
-        return cipherAPI.decrypt(cipher.getKey(), cipher.getInitializationVector(), cipher.getAad(), cipher_text) + "\n";
+        return cipherAPI.decrypt(cipherDeprecate.getKey(), cipherDeprecate.getInitializationVector(), cipherDeprecate.getAad(), cipher_text) + "\n";
     }
 
 
