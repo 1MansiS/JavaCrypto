@@ -10,8 +10,6 @@ This module has support for performing:
 
 `SecureCryptoMicroservice` showcases, in most simplistic way on how to use JavaCryptoModule. It should be thought as any kind of service for e.g. lambda, monolithic application, microservice etc which would need some cryptographic work.
 
-**Note:** Service is designed to just showcase how Java Crypto Module can be used out of box. There are various instances (clearly outlined in source code), which would need a secure storage. With the intent of keeping this service simple and stupid, this cryptographic material is being persisted on file system.
-
 Docker image can be downloaded from [docker.hub](https://hub.docker.com/r/1mansis/javacrypto/), which should build and setup all above for anyone who wishes to experiment with this. 
 
 # Docker setup:
@@ -26,13 +24,53 @@ Once you have the image going, follow corresponding sections below on how to use
 ## Encryption/Decryption:
 
 ```
-bash-3.2$ curl -X POST 'http://localhost:8080/encrypt' --data-urlencode "plain_text=Hello World of Cryptography with Java 10"
-9A0eHSNmqnug2kD+ej/c/HQLceuSz6hZ8DYLVabyV7+VN1zl/FhQeJ3+HXnD7D4Jsj7z6FEvcl8=
-bash-3.2$ curl -X POST 'http://localhost:8080/decrypt' --data-urlencode "cipher_text=9A0eHSNmqnug2kD+ej/c/HQLceuSz6hZ8DYLVabyV7+VN1zl/FhQeJ3+HXnD7D4Jsj7z6FEvcl8="
-Hello World of Cryptography with Java 10
+Step 1: Generating Symmetric Key:
+Request: curl 'http://localhost:8080/generateSymmetricKey' -X POST -H "Content-Type: application/json" -d '{"key_size":"256","enc_algo":"AES"}'
+Response: 
+{
+  "enc_algo" : "AES",
+  "symmetric_key" : "0pbH8pcnl51eAlUTLgcGCbR1FKFkBsLIFJ1kgAmne6Y=",
+  "key_size" : 256
+}
+
+Step 2: Generating Initialization Vector:
+Request: curl 'http://localhost:8080/generateInitializationVector' -X POST -H "Content-Type: application/json" -d '{"iv_size":"16"}'
+
+Response: 
+{
+  "iv_size" : 16,
+  "IV" : "qVsGLYhOnzBbDUIyTk595w=="
+}
+
+Step 3: Encryption
+Request: curl 'http://localhost:8080/encrypt' -X POST -H "Content-Type: application/json" -d '{"symmetric_key":"0pbH8pcnl51eAlUTLgcGCbR1FKFkBsLIFJ1kgAmne6Y=","IV":"qVsGLYhOnzBbDUIyTk595w==","plain_text":"Hello Crypto World!","aad":"localhost","enc_algo":"AES"}'
+
+Response: 
+
+{
+  "plain_text" : "Hello Crypto World!",
+  "base64_cipher_text" : "OvnpZsO0gzfZ+yRCugFWLSgl5MZmj4VZNX8tf00jCViWk4o=",
+  "symmetric_key" : "0pbH8pcnl51eAlUTLgcGCbR1FKFkBsLIFJ1kgAmne6Y=",
+  "aad" : "localhost",
+  "IV" : "qVsGLYhOnzBbDUIyTk595w==",
+  "enc_algo" : "AES"
+}
+
+Step 4: Decryption
+Request: curl 'http://localhost:8080/decrypt' -X POST -H "Content-Type: application/json" -d '{"symmetric_key":"0pbH8pcnl51eAlUTLgcGCbR1FKFkBsLIFJ1kgAmne6Y=","IV":"qVsGLYhOnzBbDUIyTk595w==","base64_cipher_text":"OvnpZsO0gzfZ+yRCugFWLSgl5MZmj4VZNX8tf00jCViWk4o=","enc_algo":"AES","aad":"localhost"}'
+
+Response:
+
+{
+  "plain_text" : "Hello Crypto World!",
+  "enc_algo" : "AES",
+  "IV" : "qVsGLYhOnzBbDUIyTk595w==",
+  "base64_cipher_text" : "OvnpZsO0gzfZ+yRCugFWLSgl5MZmj4VZNX8tf00jCViWk4o=",
+  "aad" : "localhost",
+  "symmetric_key" : "0pbH8pcnl51eAlUTLgcGCbR1FKFkBsLIFJ1kgAmne6Y="
+}
 ```
 
-**Note:** Cryptographic keying material is being persisted on file system. Thus, decryption should immediately follow encryption, to be successful.
 
 ## Message Digest:
 
@@ -54,14 +92,40 @@ bash-3.2$
 ## Digital Signature:
 
 ```
-bash-3.2$ curl -X POST 'http://localhost:8080/digital_signature_sign' --data-urlencode "data=Hello World of Cryptography with Java 10"
-AcnfAAOj2muJHCTmWphU8dI0noHt+IaRqHHt0yFPneH0496gzIIqANfs7T3si9oF9SapwPAzsvNrig5eGZKQr5+djBOdzUquufDpPlWG7P60sQ7d7kWXqBZKpg3snyAe8YAe/1ho+xDlaD5tB1Ke2x7DWqyDGCLKU0OtmnsFbUFGQkWE1GtZPBH3GljSnkcHegrx3BEUh9w/m3Lz12+ZZI0oF7Rtcb4eaOV6NmPOCA5FHEMVsFXCgJoRmqNB3PGX30ufg5or6Z6J0AZhqxJBRKJKPMMGS8wXM43vKLzrWzJPF3pE+ptiQ50BOBOPPgz52GKDyKC5sFhZdMXe2L3xOCEPo9IRc454JsgWn52CSwg0HxVl7nZH4+u0wCWNKhuWJX5VLiY4rgc4A4NqWQk/M9ozRXntyjdEwm+CFctWe+B6br/v1jl/cwpmTZJCKNa0kRvzS5oVQq1GHh3b0R6bE0K4S9dHotJ5NAeEZQLfp/kG2gfS78VYO6/yfJoDF/gg+/DIpRetLB6X7tQeCNXRMDTiUEU6V0uUjKitYLjZGbCy3HKFaN9adDM3v0joTT89I/zHNuX+0M37FfdFJffePTZpFQ2mB6MeFj0+E2034acopm5zayt5hLk92oAyte+ivFmmb7bUfJVKoGaBIOuGT7GvuV6E1ateBOB2qZ5QKR0=
-bash-3.2$ curl -X POST 'http://localhost:8080/digital_signature_verify' --data-urlencode "data=Hello World of Cryptography with Java 10" --data-urlencode "sign=AcnfAAOj2muJHCTmWphU8dI0noHt+IaRqHHt0yFPneH0496gzIIqANfs7T3si9oF9SapwPAzsvNrig5eGZKQr5+djBOdzUquufDpPlWG7P60sQ7d7kWXqBZKpg3snyAe8YAe/1ho+xDlaD5tB1Ke2x7DWqyDGCLKU0OtmnsFbUFGQkWE1GtZPBH3GljSnkcHegrx3BEUh9w/m3Lz12+ZZI0oF7Rtcb4eaOV6NmPOCA5FHEMVsFXCgJoRmqNB3PGX30ufg5or6Z6J0AZhqxJBRKJKPMMGS8wXM43vKLzrWzJPF3pE+ptiQ50BOBOPPgz52GKDyKC5sFhZdMXe2L3xOCEPo9IRc454JsgWn52CSwg0HxVl7nZH4+u0wCWNKhuWJX5VLiY4rgc4A4NqWQk/M9ozRXntyjdEwm+CFctWe+B6br/v1jl/cwpmTZJCKNa0kRvzS5oVQq1GHh3b0R6bE0K4S9dHotJ5NAeEZQLfp/kG2gfS78VYO6/yfJoDF/gg+/DIpRetLB6X7tQeCNXRMDTiUEU6V0uUjKitYLjZGbCy3HKFaN9adDM3v0joTT89I/zHNuX+0M37FfdFJffePTZpFQ2mB6MeFj0+E2034acopm5zayt5hLk92oAyte+ivFmmb7bUfJVKoGaBIOuGT7GvuV6E1ateBOB2qZ5QKR0="
-true
-bash-3.2$ 
+Step 1: Generating Keys based on edward curves or NIST curves:
+Request: curl -X POST 'http://localhost:8080/generateAsymmetricKey' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve"}' | json_pp
+
+Response: 
+{
+ "asymm_algo" : "ed-curve",
+ "base64_public_key" : "MCowBQYDK2VwAyEAW5CKDO5xEO5EVVIcMeBFJ0w4nI6MDmWjWEHgZ4Zqeoc=",
+ "base64_private_key" : "MC4CAQAwBQYDK2VwBCIEIJtmYm8YaxQW50/LI8Uhf3ft1uUB7kKHbK7jF0Ze1SqF"
+}
+
+Step 2: Signing a message; generating Signature for plain text message
+Request: curl -X POST 'http://localhost:8080/sign' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve","base64_private_key":"MC4CAQAwBQYDK2VwBCIEIJtmYm8YaxQW50/LI8Uhf3ft1uUB7kKHbK7jF0Ze1SqF","plaintext_message":"Hello World!"}' | json_pp
+
+Response: 
+{
+  "plaintext_message" : "Hello World!",
+  "asymm_algo" : "ed-curve",
+  "base64_sign" : "FOh5uarkS3MMdkraAUJywSK8M/SXQbgbOjjze0zgsDzQ0QqH3++dbeev/WPdKdKXQwRDzY0v8rUKP1rDAL0MBQ==",
+  "base64_private_key" : "MC4CAQAwBQYDK2VwBCIEIJtmYm8YaxQW50/LI8Uhf3ft1uUB7kKHbK7jF0Ze1SqF"
+}
+
+Step 3: Verifying a message
+Request: curl -X POST 'http://localhost:8080/verify' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve","plaintext_message":"Hello World!","base64_public_key":"MCowBQYDK2VwAyEAW5CKDO5xEO5EVVIcMeBFJ0w4nI6MDmWjWEHgZ4Zqeoc=","base64_sign":"FOh5uarkS3MMdkraAUJywSK8M/SXQbgbOjjze0zgsDzQ0QqH3++dbeev/WPdKdKXQwRDzY0v8rUKP1rDAL0MBQ=="}' | json_pp
+
+Response: 
+{
+  "base64_sign" : "FOh5uarkS3MMdkraAUJywSK8M/SXQbgbOjjze0zgsDzQ0QqH3++dbeev/WPdKdKXQwRDzY0v8rUKP1rDAL0MBQ==",
+  "plaintext_message" : "Hello World!",
+  "asymm_algo" : "ed-curve",
+  "verified" : true,
+  "base64_public_key" : "MCowBQYDK2VwAyEAW5CKDO5xEO5EVVIcMeBFJ0w4nI6MDmWjWEHgZ4Zqeoc="
+}
 
 ```
-**Note:** Public and Private keys are persisted on file system. Thus, verification should follow signing.
 
 ## Secure Password Storage and Authentication
 
