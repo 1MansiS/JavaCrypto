@@ -1,23 +1,19 @@
-package com.secure.crypto.microservice.securecryptomicroservice.cipher.symmetric.controller;
+package com.secure.crypto.microservice.securecryptomicroservice.digital_signature.controller;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.secure.crypto.digital_signature.ECDigitalSignatureAPI;
 import com.secure.crypto.digital_signature.EdDigitalSignatureAPI;
 import com.secure.crypto.key_generation.AsymmetricKeyGeneration;
-import com.secure.crypto.microservice.securecryptomicroservice.cipher.symmetric.entity.AsymmetricEncryption;
-import com.secure.crypto.microservice.securecryptomicroservice.cipher.symmetric.entity.SymmetricEncryption;
+import com.secure.crypto.microservice.securecryptomicroservice.digital_signature.entity.DiigitalSignature;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.awt.*;
 import java.security.KeyPair;
 import java.util.Base64;
 
 @RestController
-public class AsymmetricEncryptionController {
+public class DigitalSignatureController {
 
     AsymmetricKeyGeneration asymmetricKeyGeneration = new AsymmetricKeyGeneration();
     EdDigitalSignatureAPI edDigitalSignatureAPI = new EdDigitalSignatureAPI();
@@ -26,7 +22,7 @@ public class AsymmetricEncryptionController {
     /***
      * Generated Asymmetric Keys. Specify the  digital signature  algorithm to be  used. Only accepted values are ed-curve (edward curves)  or eddsa(NIST curves)
      * Sample Request: curl -X POST 'http://localhost:8080/generateAsymmetricKey' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve"}' | json_pp
-     * @param asymmetricEncryption  :  Expects asymm_algo with only expects values of ed-curve or ecdsa
+     * @param diigitalSignature  :  Expects asymm_algo with only expects values of ed-curve or ecdsa
      * @return : base64 encoded public and private keys
      * {
      *    "asymm_algo" : "ed-curve",
@@ -38,25 +34,25 @@ public class AsymmetricEncryptionController {
                     produces = MediaType.APPLICATION_JSON_VALUE,
                     consumes = MediaType.APPLICATION_JSON_VALUE
                 )
-    public AsymmetricEncryption generateAsymmetricKey(@RequestBody AsymmetricEncryption asymmetricEncryption) {
+    public DiigitalSignature generateAsymmetricKey(@RequestBody DiigitalSignature diigitalSignature) {
         KeyPair keyPair = null;
 
-        if (asymmetricEncryption.getAsymm_algo().compareToIgnoreCase("ed-curve") == 0) { // Its asking to use Edward Curves
+        if (diigitalSignature.getAsymm_algo().compareToIgnoreCase("ed-curve") == 0) { // Its asking to use Edward Curves
             keyPair = asymmetricKeyGeneration.generateEdAsymmetricKey();
         } else { // Use a safe NIST curves (ecdsa)
             keyPair = asymmetricKeyGeneration.generateECAsymmetricKey();
         }
 
-        asymmetricEncryption.setBase64EncodedPublicKey(Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()));
-        asymmetricEncryption.setBase64EncodedPrivateKey(Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded()));
+        diigitalSignature.setBase64EncodedPublicKey(Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()));
+        diigitalSignature.setBase64EncodedPrivateKey(Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded()));
 
-        return asymmetricEncryption;
+        return diigitalSignature;
     }
 
     /***
      * This endpoint, generated the digital signature for the message passed
      * Sample Request: curl -X POST 'http://localhost:8080/sign' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve","base64_private_key":"MC4CAQAwBQYDK2VwBCIEIJtmYm8YaxQW50/LI8Uhf3ft1uUB7kKHbK7jF0Ze1SqF","plaintext_message":"Hello World!"}' | json_pp
-     * @param asymmetricEncryption: Pass the asymm_algo, base64_private_key and plaintext_message
+     * @param diigitalSignature: Pass the asymm_algo, base64_private_key and plaintext_message
      * @return : Base 64 signature value:
      *{
      *    "plaintext_message" : "Hello World!",
@@ -69,32 +65,32 @@ public class AsymmetricEncryptionController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
         )
-    public AsymmetricEncryption sign(@RequestBody AsymmetricEncryption asymmetricEncryption) {
+    public DiigitalSignature sign(@RequestBody DiigitalSignature diigitalSignature) {
 
 
-        if(asymmetricEncryption.getAsymm_algo().compareToIgnoreCase("ed-curve") == 0) { // Use Edward Curves
-            asymmetricEncryption.setBase64Signature(
+        if(diigitalSignature.getAsymm_algo().compareToIgnoreCase("ed-curve") == 0) { // Use Edward Curves
+            diigitalSignature.setBase64Signature(
                     edDigitalSignatureAPI.sign(
-                            asymmetricEncryption.getPlaintext_message(),
-                            asymmetricEncryption.getBase64EncodedPrivateKey())
+                            diigitalSignature.getPlaintext_message(),
+                            diigitalSignature.getBase64EncodedPrivateKey())
             );
         } else { // Use NIST curves
-            asymmetricEncryption.setBase64Signature(
+            diigitalSignature.setBase64Signature(
                     ecDigitalSignatureAPI.sign(
-                            asymmetricEncryption.getPlaintext_message(),
-                            asymmetricEncryption.getBase64EncodedPrivateKey()
+                            diigitalSignature.getPlaintext_message(),
+                            diigitalSignature.getBase64EncodedPrivateKey()
                     )
             );
         }
 
 
-        return asymmetricEncryption;
+        return diigitalSignature;
     }
 
     /***
      * This endpoint, verifies the digital signature passed
      * Samepl Request: curl -X POST 'http://localhost:8080/verify' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve","plaintext_message":"Hello World!","base64_public_key":"MCowBQYDK2VwAyEAW5CKDO5xEO5EVVIcMeBFJ0w4nI6MDmWjWEHgZ4Zqeoc=","base64_sign":"FOh5uarkS3MMdkraAUJywSK8M/SXQbgbOjjze0zgsDzQ0QqH3++dbeev/WPdKdKXQwRDzY0v8rUKP1rDAL0MBQ=="}' | json_pp
-     * @param asymmetricEncryption: Expects: asymm_algo, base64_public_key, plaintext_message and base64_sign
+     * @param diigitalSignature: Expects: asymm_algo, base64_public_key, plaintext_message and base64_sign
      * @return: If the signature is verified. Look for the value of verified  key in response json string.
      * {
      *    "base64_sign" : "FOh5uarkS3MMdkraAUJywSK8M/SXQbgbOjjze0zgsDzQ0QqH3++dbeev/WPdKdKXQwRDzY0v8rUKP1rDAL0MBQ==",
@@ -108,26 +104,26 @@ public class AsymmetricEncryptionController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public AsymmetricEncryption verify(@RequestBody AsymmetricEncryption asymmetricEncryption) {
+    public DiigitalSignature verify(@RequestBody DiigitalSignature diigitalSignature) {
 
-        if(asymmetricEncryption.getAsymm_algo().compareToIgnoreCase("ed-curve") == 0){ // Use Edward Curves
-            asymmetricEncryption.setVerified(
+        if(diigitalSignature.getAsymm_algo().compareToIgnoreCase("ed-curve") == 0){ // Use Edward Curves
+            diigitalSignature.setVerified(
                     edDigitalSignatureAPI.verify(
-                            asymmetricEncryption.getPlaintext_message(),
-                            asymmetricEncryption.getBase64EncodedPublicKey(),
-                            asymmetricEncryption.getBase64Signature()
+                            diigitalSignature.getPlaintext_message(),
+                            diigitalSignature.getBase64EncodedPublicKey(),
+                            diigitalSignature.getBase64Signature()
                     )
             );
         } else { // Use NIST curves
-            asymmetricEncryption.setVerified(
-                    ecDigitalSignatureAPI.verify(asymmetricEncryption.getPlaintext_message(),
-                            asymmetricEncryption.getBase64EncodedPublicKey(),
-                            asymmetricEncryption.getBase64Signature()
+            diigitalSignature.setVerified(
+                    ecDigitalSignatureAPI.verify(diigitalSignature.getPlaintext_message(),
+                            diigitalSignature.getBase64EncodedPublicKey(),
+                            diigitalSignature.getBase64Signature()
                     )
             );
         }
 
-        return asymmetricEncryption;
+        return diigitalSignature;
     }
 }
 

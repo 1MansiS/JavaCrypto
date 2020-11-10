@@ -1,9 +1,9 @@
-package com.secure.crypto.microservice.securecryptomicroservice.cipher.symmetric.entity;
+package com.secure.crypto.microservice.securecryptomicroservice.digital_signature.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class AsymmetricEncryption {
+public class DiigitalSignature {
 
     // Acceptable values ecdsa, eddsa
     @JsonProperty("asymm_algo")
