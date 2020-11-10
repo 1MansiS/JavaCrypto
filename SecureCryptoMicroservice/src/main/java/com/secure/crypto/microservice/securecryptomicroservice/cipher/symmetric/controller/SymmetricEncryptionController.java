@@ -24,7 +24,7 @@ public class SymmetricEncryptionController {
 
     /***
      * This endpoint expects encryption algorithhm and key size to generate symmetric key. Generated Symmetric Key should be safely stored. Ideally using a KMS.
-     * Same request : curl 'http://localhost:8080/generateSymmetricKey' -X POST -H "Content-Type: application/json" -d '{"key_size":"256","enc_algo":"AES"}'
+     * Sample request : curl 'http://localhost:8080/generateSymmetricKey' -X POST -H "Content-Type: application/json" -d '{"key_size":"256","enc_algo":"AES"}'
      * @param symmetricEncryption : key_size (specified in bit size) and enc_algo properties should be passed in json request
      * @return : Outputs, generated symmetric key (base 64 encoded):
      * {
@@ -50,7 +50,7 @@ public class SymmetricEncryptionController {
 
     /***
      * This endpoint generates initialization vector of specified size. Generated IV  should be treated as any keying material and be safely stored. Ideally using a KMS.
-     * Same request: curl 'http://localhost:8080/generateInitializationVector' -X POST -H "Content-Type: application/json" -d '{"iv_size":"16"}'
+     * Sample request: curl 'http://localhost:8080/generateInitializationVector' -X POST -H "Content-Type: application/json" -d '{"iv_size":"16"}'
      * @param symmetricEncryption : iv_size (specified in byte size) property should be passed in json request
      * @return : Outputs, generated IV (base 64 encoded):
      * {
@@ -73,7 +73,7 @@ public class SymmetricEncryptionController {
 
     /***
      * /encrypt endpoint is called to do the actual encryption, taking in the key and iv generated thru above endpoints. It gives out the cipher text.
-     * Same request: curl 'http://localhost:8080/encrypt' -X POST -H "Content-Type: application/json" -d '{"symmetric_key":"0pbH8pcnl51eAlUTLgcGCbR1FKFkBsLIFJ1kgAmne6Y=","IV":"qVsGLYhOnzBbDUIyTk595w==","plain_text":"Hello Crypto World!","aad":"localhost","enc_algo":"AES"}'
+     * Sample request: curl 'http://localhost:8080/encrypt' -X POST -H "Content-Type: application/json" -d '{"symmetric_key":"0pbH8pcnl51eAlUTLgcGCbR1FKFkBsLIFJ1kgAmne6Y=","IV":"qVsGLYhOnzBbDUIyTk595w==","plain_text":"Hello Crypto World!","aad":"localhost","enc_algo":"AES"}'
      * @param symmetricEncryption : Should pass symmetric_key, IV, plain_text, enc_algo and aad (only for AES) properties in json string
      * @return  : Return cipher text (base 64 encoded):
      * {
@@ -113,7 +113,7 @@ public class SymmetricEncryptionController {
 
     /***
      * This endpoint is called to decrypt cipher text to retrieve corresponding plain text. It expects keying material used for encryption and cipher text.
-     * Same request: curl 'http://localhost:8080/decrypt' -X POST -H "Content-Type: application/json" -d '{"symmetric_key":"0pbH8pcnl51eAlUTLgcGCbR1FKFkBsLIFJ1kgAmne6Y=","IV":"qVsGLYhOnzBbDUIyTk595w==","base64_cipher_text":"OvnpZsO0gzfZ+yRCugFWLSgl5MZmj4VZNX8tf00jCViWk4o=","enc_algo":"AES","aad":"localhost"}'
+     * Sample request: curl 'http://localhost:8080/decrypt' -X POST -H "Content-Type: application/json" -d '{"symmetric_key":"0pbH8pcnl51eAlUTLgcGCbR1FKFkBsLIFJ1kgAmne6Y=","IV":"qVsGLYhOnzBbDUIyTk595w==","base64_cipher_text":"OvnpZsO0gzfZ+yRCugFWLSgl5MZmj4VZNX8tf00jCViWk4o=","enc_algo":"AES","aad":"localhost"}'
      * @param symmetricEncryption : Pass in symmetric_key, IV, base64_cipher_text, enc_algo and aad (only for AES encryption)
      * @return : Corresponding plain text:
      * {
