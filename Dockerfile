@@ -1,15 +1,18 @@
-FROM openjdk
-RUN yum -y install git
-RUN yum -y install unzip
+FROM adoptopenjdk/openjdk15
+RUN java --version
 WORKDIR /gradle
-RUN curl -L https://services.gradle.org/distributions/gradle-6.6-rc-6-bin.zip -o gradle-6.6-rc-6-bin.zip
-RUN unzip gradle-6.6-rc-6-bin.zip
-ENV GRADLE_HOME=/gradle/gradle-6.6-rc-6
+RUN curl -L https://services.gradle.org/distributions/gradle-6.7-bin.zip -o  gradle-6.7-bin.zip
+RUN apt-get update
+RUN apt-get install zip unzip
+RUN unzip gradle-6.7-bin.zip
+ENV GRADLE_HOME=/gradle/gradle-6.7
 ENV PATH=$PATH:$GRADLE_HOME/bin
 RUN gradle --version
+
+RUN apt-get install -q -y git 
 RUN git --version
 
-RUN git clone https://gitlab.com/1MansiS/JavaCrypto.git
+RUN git clone https://github.com/1MansiS/JavaCrypto.git
 WORKDIR JavaCrypto/JavaCryptoModule
 RUN gradle clean compileJava assemble --stacktrace
 WORKDIR ../SecureCryptoMicroservice
