@@ -3,22 +3,28 @@ name: Secure Java Crypto
 on : push
 
 jobs:
-  build:
-    - uses: actions/checkout@v2
-    - uses: docker/setup-buildx-action@v1
-      with:
-        driver: docker
-    - uses: docker/login-action@v1
-      with:
-        registry: hub.docker.com
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
-    - uses: docker/build-push-action@v2
-      with:
-        context: .
-        tags: 1mansis/javacrypto:latest
-        load: true
-    - run: docker push hub.docker.com/1mansis/javacrypto:latest
+  main:
+    - runs-on: ubuntu-latest
+    steps:
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD}}
+      -
+        name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: 1mansis/javacrypto:latest
+          build-args: |
+            arg1=value1
+            arg2=value2
+      -
+        name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
 
 #jobs:
 #  main:
