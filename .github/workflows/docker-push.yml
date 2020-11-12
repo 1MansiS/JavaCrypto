@@ -10,8 +10,8 @@ jobs:
         name: Pushing to Docker Hub
         with:
           push: true
-          image: 1mansis/javacrypto
-          tag: latest
+          #image: 1mansis/javacrypto
+          tags: 1mansis/javacrypto:latest
           registry: hub.docker.com
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
