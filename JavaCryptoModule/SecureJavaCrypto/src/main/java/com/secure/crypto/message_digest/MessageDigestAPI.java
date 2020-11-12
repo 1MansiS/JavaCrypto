@@ -11,7 +11,8 @@ import java.util.Base64;
 
 public class MessageDigestAPI {
 
-    private PropertiesFile propertiesFile = new PropertiesFile();
+    private String MD_ALGO="SHA3-512";
+    private int MD_DATA_READ_BUFF=8192;
 
     /*
     This API generates the message digest on input data, using configured Message Digest algorithm.
@@ -21,16 +22,17 @@ public class MessageDigestAPI {
      */
     public String generateMessageDigest(String data) {
 
-        BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(data)));
-        byte[] buff = new byte[Integer.parseInt(propertiesFile.getPropertyValue("MD_DATA_READ_BUFF"))]; // read configured no of bytes at a time
+        BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(data.getBytes()));
+
+        byte[] buff = new byte[MD_DATA_READ_BUFF]; // read configured no of bytes at a time
 
         int count = 0;
 
         MessageDigest digest = null;
 
         try {
-            digest = MessageDigest.getInstance(propertiesFile.getPropertyValue("MD_ALGO")); // Returns instance of configured algorithm implementation, from the first provider configured in java.security config file.
-        } catch (NoSuchAlgorithmException e) {System.out.println("Algorithm " + propertiesFile.getPropertyValue("MD_ALGO") + " not supported by default provider. Error message " + e.getMessage()); System.exit(0);}
+            digest = MessageDigest.getInstance(MD_ALGO); // Returns instance of configured algorithm implementation, from the first provider configured in java.security config file.
+        } catch (NoSuchAlgorithmException e) {System.out.println("Algorithm " + MD_ALGO + " not supported by default provider. Error message " + e.getMessage()); System.exit(0);}
 
         try {
             while ((count = bis.read()) > 0) {
