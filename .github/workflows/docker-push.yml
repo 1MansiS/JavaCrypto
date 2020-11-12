@@ -3,9 +3,9 @@ name: Secure Java Crypto
 on : push
 
 jobs:
+  runs-on: ubuntu-latest
   main:
     steps:
-      runs-on: ubuntu-latest
       - uses: docker/build-push-action@v2
         name: Pushing to Docker Hub
         with:
