@@ -18,7 +18,7 @@ jobs:
         context: .
         tags: 1mansis/javacrypto:latest
         load: true
-    - run: docker push /hub.docker.com/1mansis/javacrypto:latest
+    - run: docker push hub.docker.com/1mansis/javacrypto:latest
 
 #jobs:
 #  main:
