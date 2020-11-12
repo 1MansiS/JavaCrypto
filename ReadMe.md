@@ -75,19 +75,17 @@ Response:
 ## Message Digest:
 
 ```
-bash-3.2$ curl -X POST 'http://localhost:8080/message_digest' --data-urlencode "data=Hello World of Cryptography with Java 10"
-56zhjuEo8+3krBDAqneHGtMcMg1tmgbuQH7GQGLM54O5of3mYWWKZeZVT+gAAtpZr4Cxl6S9NFhveFKi6+GnVA==
+Request:  curl 'http://localhost:8080/digest' -X POST -H "Content-type: application/json" -d '{"message":"Hello Hashing!!!"}' | json_pp
+
+Response: 
+{
+   "hash" : "Mb9x21/z6XCh3OiwzWSfkxnybuKPRe0FiSqxLDkNDGRPcRzcvEHUrSRF6iseByz/qVtgXc3qYe4U1gWZkM2B7A==",
+   "message" : "Hello Hashing!!!"
+}
 ```
 
 ## Message Authentication Code:
 
-```
-bash-3.2$ curl -X POST 'http://localhost:8080/mac_sender' --data-urlencode "data=Hello World of Cryptography with Java 10"
-QVr/R6JRkvU7oRR+plJOQscLXxRoJB/KtfpxaY+6gYM=
-bash-3.2$ curl -X POST 'http://localhost:8080/mac_receiver' --data-urlencode "data=Hello World of Cryptography with Java 10" --data-urlencode "mac=QVr/R6JRkvU7oRR+plJOQscLXxRoJB/KtfpxaY+6gYM="
-true
-bash-3.2$ 
-```
 
 ## Digital Signature:
 

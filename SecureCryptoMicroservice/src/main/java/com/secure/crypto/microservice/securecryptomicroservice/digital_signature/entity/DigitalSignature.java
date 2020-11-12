@@ -3,7 +3,7 @@ package com.secure.crypto.microservice.securecryptomicroservice.digital_signatur
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class DiigitalSignature {
+public class DigitalSignature {
 
     // Acceptable values ecdsa, eddsa
     @JsonProperty("asymm_algo")
