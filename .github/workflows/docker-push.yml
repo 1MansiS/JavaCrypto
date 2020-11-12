@@ -5,6 +5,7 @@ on : push
 jobs:
   main:
     steps:
+      runs-on: ubuntu-latest
       - uses: docker/build-push-action@v2
         name: Pushing to Docker Hub
         with:
