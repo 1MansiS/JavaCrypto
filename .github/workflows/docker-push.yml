@@ -5,10 +5,10 @@ on : push
 jobs:
   main:
     steps:
-      uses: docker/build-push-action@v2
-      name: Pushing to Docker Hub
-      with:
-        image: 1mansis/javacrypto
-        registry: hub.docker.com
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v2
+        name: Pushing to Docker Hub
+        with:
+          image: 1mansis/javacrypto
+          registry: hub.docker.com
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
