@@ -29,20 +29,13 @@ public class SymmetricEncryption {
     @JsonProperty(value="plain_text")
     private String plainText;
 
-
-
     @JsonProperty(value="base64_cipher_text")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String base64EncodedEncryptedCipherText;
 
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty(value="aad")
     private String aad;
-
-    /*@JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonProperty(value="cipher_text")
-    private String cipherText;*/
 
     public String getBase64EncodedEncryptedCipherText() {
         return base64EncodedEncryptedCipherText;

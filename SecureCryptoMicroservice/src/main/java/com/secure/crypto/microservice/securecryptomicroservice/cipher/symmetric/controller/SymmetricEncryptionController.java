@@ -24,7 +24,7 @@ public class SymmetricEncryptionController {
 
     /***
      * This endpoint expects encryption algorithhm and key size to generate symmetric key. Generated Symmetric Key should be safely stored. Ideally using a KMS.
-     * Sample request : curl 'http://localhost:8080/generateSymmetricKey' -X POST -H "Content-Type: application/json" -d '{"key_size":"256","enc_algo":"AES"}'
+     * Sample request : curl 'http://localhost:8080/generate-symmetric-key' -X POST -H "Content-Type: application/json" -d '{"key_size":"256","enc_algo":"AES"}'
      * @param symmetricEncryption : key_size (specified in bit size) and enc_algo properties should be passed in json request
      * @return : Outputs, generated symmetric key (base 64 encoded):
      * {
@@ -33,7 +33,7 @@ public class SymmetricEncryptionController {
      *    "key_size" : 256
      * }
      */
-    @PostMapping(value="/generateSymmetricKey",
+    @PostMapping(value="/generate-symmetric-key",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public SymmetricEncryption  generateKey(@RequestBody SymmetricEncryption symmetricEncryption) {
@@ -50,7 +50,7 @@ public class SymmetricEncryptionController {
 
     /***
      * This endpoint generates initialization vector of specified size. Generated IV  should be treated as any keying material and be safely stored. Ideally using a KMS.
-     * Sample request: curl 'http://localhost:8080/generateInitializationVector' -X POST -H "Content-Type: application/json" -d '{"iv_size":"16"}'
+     * Sample request: curl 'http://localhost:8080/generate-initialization-vector' -X POST -H "Content-Type: application/json" -d '{"iv_size":"16"}'
      * @param symmetricEncryption : iv_size (specified in byte size) property should be passed in json request
      * @return : Outputs, generated IV (base 64 encoded):
      * {
@@ -58,7 +58,7 @@ public class SymmetricEncryptionController {
      *    "IV" : "qVsGLYhOnzBbDUIyTk595w=="
      * }
      */
-    @PostMapping(value="/generateInitializationVector",
+    @PostMapping(value="/generate-initialization-vector",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -154,7 +154,7 @@ public class SymmetricEncryptionController {
     /***
      * Step 1:
      *
-     * curl 'http://localhost:8080/generateSymmetricKey' -X POST -H "Content-Type: application/json" -d '{"key_size":"256","enc_algo":"ChaCha20"}' | json_pp
+     * curl 'http://localhost:8080/generate-symmetric-key' -X POST -H "Content-Type: application/json" -d '{"key_size":"256","enc_algo":"ChaCha20"}' | json_pp
      * {
      *    "symmetric_key" : "wPhxPnRWuVmCyS/Mvak+KHMb2Uan0BgdvTYGMYJbC+M=",
      *    "enc_algo" : "ChaCha20",
@@ -163,7 +163,7 @@ public class SymmetricEncryptionController {
      *
      * Step 2:
      *
-     * curl 'http://localhost:8080/generateInitializationVector' -X POST -H "Content-Type: application/json" -d '{"iv_size":"12"}' | json_pp
+     * curl 'http://localhost:8080/generate-initialization-vector' -X POST -H "Content-Type: application/json" -d '{"iv_size":"12"}' | json_pp
      * {
      *    "iv_size" : 12,
      *    "IV" : "kLOPGk+d7j5ppaw0"

@@ -21,7 +21,7 @@ public class DigitalSignatureController {
 
     /***
      * Generated Asymmetric Keys. Specify the  digital signature  algorithm to be  used. Only accepted values are ed-curve (edward curves)  or eddsa(NIST curves)
-     * Sample Request: curl -X POST 'http://localhost:8080/generateAsymmetricKey' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve"}' | json_pp
+     * Sample Request: curl -X POST 'http://localhost:8080/generate-asymmetric-key' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve"}' | json_pp
      * @param digitalSignature  :  Expects asymm_algo with only expects values of ed-curve or ecdsa
      * @return : base64 encoded public and private keys
      * {
@@ -30,7 +30,7 @@ public class DigitalSignatureController {
      *    "base64_private_key" : "MC4CAQAwBQYDK2VwBCIEIJtmYm8YaxQW50/LI8Uhf3ft1uUB7kKHbK7jF0Ze1SqF"
      * }
      */
-    @PostMapping(value="/generateAsymmetricKey",
+    @PostMapping(value="/generate-asymmetric-key",
                     produces = MediaType.APPLICATION_JSON_VALUE,
                     consumes = MediaType.APPLICATION_JSON_VALUE
                 )
@@ -132,7 +132,7 @@ Workflow using ecdsa algorithm(NIST curves):
 
 Step 1: Generating Keys:
 
-Sample Request: curl -X POST 'http://localhost:8080/generateAsymmetricKey' -H  "Content-Type: application/json" -d '{"asymm_algo":"eddsa"}' | json_pp
+Sample Request: curl -X POST 'http://localhost:8080/generate-asymmetric-key' -H  "Content-Type: application/json" -d '{"asymm_algo":"eddsa"}' | json_pp
 Response: {
    "asymm_algo" : "eddsa",
    "base64_public_key" : "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEnQMUFAvChWOt+pf8f5miYpdpccyMFftjNDQouNjEnoA2TrUM67l72VGIenGUZu14zBqx+ZseqhQB1DrfyTmgWRcVr2RhKkv5DfC9TJBQSU9uoQYvCzJ7Z45fpYpwIa8g",

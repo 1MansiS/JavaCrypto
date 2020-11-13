@@ -1,7 +1,5 @@
 package com.secure.crypto.message_digest;
 
-import com.secure.crypto.utils.PropertiesFile;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -17,7 +17,6 @@ public class HmacController {
     private SymmetricKeyGeneration symmetricKeyGeneration = new SymmetricKeyGeneration();
     private MACComputationAPI macComputationAPI = new MACComputationAPI();
 
-
     private String HMAC_ALGO = "HmacSHA512" ;
     private int HMAC_KEY_SIZE = 256;
 
@@ -73,7 +72,8 @@ public class HmacController {
         hmac.setMac(
                 macComputationAPI.computeMac(
                         hmac.getBase64SymmetricKey(),
-                        hmac.getMessage()
+                        hmac.getMessage(),
+                        HMAC_ALGO
                 )
         );
 

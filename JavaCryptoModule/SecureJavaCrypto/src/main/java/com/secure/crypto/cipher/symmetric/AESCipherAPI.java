@@ -1,7 +1,6 @@
 package com.secure.crypto.cipher.symmetric;
 
 import com.secure.crypto.secure_random.SecureRandomAPI;
-import com.secure.crypto.utils.PropertiesFile;
 
 import javax.crypto.*;
 import javax.crypto.spec.GCMParameterSpec;

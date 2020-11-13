@@ -1,7 +1,5 @@
 package com.secure.crypto.key_generation;
 
-import com.secure.crypto.utils.PropertiesFile;
-
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
 
@@ -12,8 +10,10 @@ public class AsymmetricKeyGeneration {
 
     private String EDWARD_CURVE = "Ed25519" ;
 
-    PropertiesFile propertiesFile = new PropertiesFile();
-
+    /**
+     * Generated asymmetric keys to be used with NIST curves
+     * @return
+     */
     public KeyPair generateECAsymmetricKey() {
         KeyPairGenerator keyPairGenerator = null;
 
@@ -30,10 +30,14 @@ public class AsymmetricKeyGeneration {
         return keyPairGenerator.generateKeyPair();
     }
 
+    /***
+     * Generates asymmetric keys to be used with Edward Curves
+     * @return
+     */
     public KeyPair generateEdAsymmetricKey() {
         KeyPairGenerator keyPairGenerator = null;
         try {
-            keyPairGenerator = KeyPairGenerator.getInstance(EDWARD_CURVE);
+            keyPairGenerator = KeyPairGenerator.getInstance(EDWARD_CURVE); // Unlike any other key generation no extra initialization required such as key size, or actual curve name
         } catch (NoSuchAlgorithmException e) {System.out.println("Exception: While initializing " + EDWARD_CURVE) ;}
 
         return keyPairGenerator.generateKeyPair();
