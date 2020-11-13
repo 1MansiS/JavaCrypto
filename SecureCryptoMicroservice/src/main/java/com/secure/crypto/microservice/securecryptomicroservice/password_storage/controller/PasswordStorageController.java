@@ -45,13 +45,14 @@ public class PasswordStorageController {
 
     /***
      * Compute hash of plain text password using a kdf function. Never store plain text password in clear, always store it by compute it using a strong kdf.
-     * Sample Request: curl 'http://localhost:8080/compute-kdf-passwd' -X POST -H "Content-type: application/json"  -d '{"base64-salt":"W+OXsj35qDPm9Xl4FdPDcz26pGE=","passwd":"mysupersecretpasswordtobestored!!!"}'| json_pp
-     * @param kdfPasswordStorageEntity : "base64-salt" and "passwd"
+     * Sample Request: curl 'http://localhost:8080/compute-kdf-passwd' -X POST -H "Content-type: application/json"  -d '{"base64-salt":"Ihg4MIicY8hrWhiBw7Ogf6FEUZ4=","passwd":"mysupersecretpasswordtobestored!!!","kdf-algo":"pbkdf2"}'| json_pp
+     * @param kdfPasswordStorageEntity : "base64-salt", "kdf-algo" and "passwd"
      * @return :
      * {
-     *    "base64-kdf-passwd-hash" : "Y241DH7LqmzUs9mpr0sgyPXNbdsXAISHNPUJUq8e9qnJ8YEVXN4qsQl8AZza94GxhrFED9Ntz2ATj9bRhn/iqmfTuE9FM42Z3er5F35Ud8jZdGUr12fb6GEUqRqwEhc9cSfMGsJ9lakAkXLWVQ6oUHL9lV7MDcgS/GBk3w4ZxOlP0OLsiR7r4qDB0fh4OTFR8J1Tw+usKVSXbuzqdWTLOo63On7CwfmhXW1fdf7A2cV5M6XvfVUquk/Sx1XbgVOBknvKcW5ugAIdj5Esnt8fSZhqRRtci600QpMAPPXogL6R4G/VOgMp2tabAQT7k7qB+gSlivmC4YAkxTMshFRokw==",
-     *    "base64-salt" : "W+OXsj35qDPm9Xl4FdPDcz26pGE=",
-     *    "passwd" : "mysupersecretpasswordtobestored!!!"
+     *    "base64-kdf-passwd-hash" : "FdpfiqCAEhSZiX5u27WUV7Y0iI9Qw2huCBSNDRAGEFaZ84FmFSiU2Ws4wG9O5fBOy5bsdL7XXNhHCZvWcdXgsNjvwoKFc2muh2r0SFpm3/MbnZUrI63gsKXlcrbvpzdvArZ9DzRUz31TjyK0fKs2HcVjQ3BA4lD+4iY9HJZYDMfu/D1YMpe7MEpYhCnTfOb8FVfUsOyje0N4+zGm547XfHXIzt/JrCYgbqn5Imw7JaVmS9i9jUflgxBsc+lv2wZmbxQoJ9md/dvk4xD0P6hpT0vSKpK9uj6ZJ5sxPpOkZvpKmskSnpNamcWjw2IrbTAGi3buoDBqbPeyPuN3Spkrcw==",
+     *    "kdf-algo" : "pbkdf2",
+     *    "passwd" : "mysupersecretpasswordtobestored!!!",
+     *    "base64-salt" : "Ihg4MIicY8hrWhiBw7Ogf6FEUZ4="
      * }
      */
     @PostMapping(value="compute-kdf-passwd",
@@ -61,13 +62,16 @@ public class PasswordStorageController {
             )
     public KDFPasswordStorageEntity computeKDFPassword(@RequestBody KDFPasswordStorageEntity kdfPasswordStorageEntity) {
 
-        kdfPasswordStorageEntity.setBase64KDFPasswd(
-            kdfPasswdStorage.generatePasswdForStorage(
-                kdfPasswordStorageEntity.getPlainTextPassword(),
-                kdfPasswordStorageEntity.getBase64Salt()
-            )
-        );
-
+        if(kdfPasswordStorageEntity.getPasswdHashingAlgo().compareToIgnoreCase("pbkdf2") == 0) {
+            kdfPasswordStorageEntity.setBase64KDFPasswd(
+                    kdfPasswdStorage.generatePasswdForStorage(
+                            kdfPasswordStorageEntity.getPlainTextPassword(),
+                            kdfPasswordStorageEntity.getBase64Salt()
+                    )
+            );
+        } else { // Only other supportd algorithm is Argon2
+            // ToDo
+        }
         return kdfPasswordStorageEntity;
     }
 }

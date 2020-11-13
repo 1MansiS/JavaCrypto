@@ -21,6 +21,10 @@ public class KDFPasswordStorageEntity {
     @JsonProperty("passwd")
     private String plainTextPassword;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("kdf-algo")
+    private String passwdHashingAlgo;
+
     public String getSaltSize() {
         return saltSize;
     }
@@ -52,4 +56,17 @@ public class KDFPasswordStorageEntity {
     public void setPlainTextPassword(String plainTextPassword) {
         this.plainTextPassword = plainTextPassword;
     }
+
+    public String getPasswdHashingAlgo() {
+        return passwdHashingAlgo;
+    }
+
+    @JsonProperty
+    public void setPasswdHashingAlgo(String passwdHashingAlgo) {
+        if(!(passwdHashingAlgo.toLowerCase().equals("argon2") || passwdHashingAlgo.toLowerCase().equals("pbkdf2"))) {
+            throw new RuntimeException(passwdHashingAlgo + " value is invalid. Only acceptable values are Argon2 or PBKDF2");
+        }
+        this.passwdHashingAlgo = passwdHashingAlgo;
+    }
+
 }

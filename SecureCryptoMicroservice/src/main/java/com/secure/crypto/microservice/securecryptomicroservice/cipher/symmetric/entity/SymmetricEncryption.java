@@ -49,8 +49,14 @@ public class SymmetricEncryption {
         return ivSize;
     }
 
+    @JsonProperty
     public void setIvSize(int ivSize) {
+
+        if(ivSize < 12 ) {
+            throw new RuntimeException(ivSize + " is too less for an Initialization Vector. Choose something greater than 12 bytes (96 bits)");
+        }
         this.ivSize = ivSize;
+
     }
 
     public String getBase64EncodeIV() {
@@ -97,7 +103,13 @@ public class SymmetricEncryption {
         return encAlgo;
     }
 
+    @JsonProperty
     public void setEncAlgo(String encAlgo) {
+        if(!(encAlgo.toLowerCase().equals("aes") || encAlgo.toLowerCase().equals("chacha20"))) {
+            throw new RuntimeException("Value " + encAlgo + " is invalid. Only valid values are AES or ChaCha20");
+        }
         this.encAlgo = encAlgo;
+
+
     }
 }

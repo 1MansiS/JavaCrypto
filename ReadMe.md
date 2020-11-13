@@ -2,11 +2,11 @@ Above code base, has a Java Module (`JavaCryptoModule`), which exposes apis, res
 
 This module has support for performing:
 
-* symmetric encryption/decryption, 
+* symmetric encryption/decryption using AES-GCM and ChaCha20-Poly1305 crypto schemes, 
 * computing message digests, 
-* sender and receiver components of Message Authentication Code (MAC)
-* Signing and Verifying Digital Signatures
-* Password Storage
+* Computing Message Authentication Code
+* Signing and Verifying Digital Signatures using edward curves or EDDSA mechanism using NIST curves
+* Computing hashes using Key Derivation function PBKDF2
 
 `SecureCryptoMicroservice` showcases, in most simplistic way on how to use JavaCryptoModule. It should be thought as any kind of service for e.g. lambda, monolithic application, microservice etc which would need some cryptographic work.
 
@@ -84,7 +84,30 @@ Response:
 }
 ```
 
-## Message Authentication Code:
+## Message Authentication Code (MAC):
+
+```
+Step 1: Generate symmetric key for computing MAC
+Request: curl 'http://localhost:8080/compute-hmac-key' -X POST -H "Content-type: application/json" | json_pp
+
+Response:
+{
+   "base64-symmetric-key" : "CwyXz3ZymqD3eKzlo3xwmloL5WjEDAyF2iVC4L4xoHk="
+}
+
+Step 2: Compute MAC
+Request: curl 'http://localhost:8080/compute-mac' -X POST -H "Content-type: application/json" -d '{"message":"Hello MAC!!!","base64-symmetric-key":"CwyXz3ZymqD3eKzlo3xwmloL5WjEDAyF2iVC4L4xoHk="}' | json_pp
+
+Response: 
+
+{
+   "message" : "Hello MAC!!!",
+   "base64-symmetric-key" : "CwyXz3ZymqD3eKzlo3xwmloL5WjEDAyF2iVC4L4xoHk=",
+   "mac" : "OWEjsI5RguL47XBjUPGvfla5z66P3lSt6puYpPUeosa7AFCU4+SDAWX4VrZ+xuukHOqoHS1smE8Kiixrut6BHA=="
+}
+
+
+```
 
 
 ## Digital Signature:
@@ -128,17 +151,29 @@ Response:
 ## Secure Password Storage and Authentication
 
 ```
-bash-3.2$ curl 'http://localhost:8080/calc_passwd_storage' --data-urlencode "plain_text_password=Passw0rd"
-yrEjH50LrXAAqaB3Ky35DV0g8E1f2nXO40qEQfc/QA6OTexyIHJZNoLOJxjEozMnUrv3Ja/j7/OJyo+r77kK2vgrGuyJ1sRMP9C/iRd2hjfbJZ05cBYT8v514lv0RWODTcr1pdBvXG0qPl/f+W82Z9z13Zm+KWxk11e84pRsrlF0EnxAtIChZhzy0zWb4L3c7N9cB41NQ7MozRia75TKxbwsLTnO2i74cdGUsA3WvLyYDs0aCxxKDEisc9GJW4vD7xs/tVv+0SMOvK1B6LE6DA2D+VraDcH638Fb1gYxYLBBatjBjHDJgo8FOkEETS7LVQ0APwWh5j9t2AFQ9Hfmyw==msheth-mbp:SecureCryptoMicroservice msheth$ curl 'http://localhost:808rm public.key 
-bash-3.2$ curl 'http://localhost:8080/authenticate' --data-urlencode "plain_text_password=Passw0rd"
-true
+Step 1: Generate salt:
+Request: curl 'http://localhost:8080/compute-salt' -X POST -H "Content-type: application/json"  -d '{"salt-size":"20"}'| json_pp
+
+Response: 
+{
+   "salt-size" : "20",
+   "base64-salt" : "ceUHx5NH2/mE5CIoylRuSzqB/BI="
+}
+
+Step 2: Compute Hash using KDF
+Request: curl 'http://localhost:8080/compute-kdf-passwd' -X POST -H "Content-type: application/json"  -d '{"base64-salt":"ceUHx5NH2/mE5CIoylRuSzqB/BI=","passwd":"mysupersecretpasswordtobestored!!!","kdf-algo":"pbkdf2"}'| json_pp
+
+Response: 
+{
+   "base64-kdf-passwd-hash" : "FdpfiqCAEhSZiX5u27WUV7Y0iI9Qw2huCBSNDRAGEFaZ84FmFSiU2Ws4wG9O5fBOy5bsdL7XXNhHCZvWcdXgsNjvwoKFc2muh2r0SFpm3/MbnZUrI63gsKXlcrbvpzdvArZ9DzRUz31TjyK0fKs2HcVjQ3BA4lD+4iY9HJZYDMfu/D1YMpe7MEpYhCnTfOb8FVfUsOyje0N4+zGm547XfHXIzt/JrCYgbqn5Imw7JaVmS9i9jUflgxBsc+lv2wZmbxQoJ9md/dvk4xD0P6hpT0vSKpK9uj6ZJ5sxPpOkZvpKmskSnpNamcWjw2IrbTAGi3buoDBqbPeyPuN3Spkrcw==",
+   "kdf-algo" : "pbkdf2",
+   "passwd" : "mysupersecretpasswordtobestored!!!",
+   "base64-salt" : "ceUHx5NH2/mE5CIoylRuSzqB/BI="
+}
 ```
 
 # Security Architecture Must-dos
-* A matured Key Management System (for e.g. AWS KMS, vault, Safenet etc), should be used for any kind of key material management (like encryption keys, initialization vectors etc) management. Just to keep above microservice, as a simple demo on how to use Java crypto module, I have taken various shortcuts. One of them being persisting cyptographic materials. This should **NOT** be done in real world applications. 
+* A matured Key Management System (for e.g. AWS KMS, vault, Safenet etc), should be used for any kind of key material management (like encryption keys, initialization vectors, salts, password hashes etc) management. Just to keep above microservice, as a simple demo on how to use Java crypto module, I have taken various shortcuts. 
 * Every effort is being taken to keep above microservice stateless. This mitigates  complicated 2 way ssl, and certificate management. But, make sure all communication is happening over https.
 
 	
-# References:
-1. [Google Tink Cryptographic Software](https://security.googleblog.com/2018/08/introducing-tink-cryptographic-software.html)
-2. [Bouncy Castle Provider Installation](http://www.bouncycastle.org/wiki/display/JA1/Provider+Installation)

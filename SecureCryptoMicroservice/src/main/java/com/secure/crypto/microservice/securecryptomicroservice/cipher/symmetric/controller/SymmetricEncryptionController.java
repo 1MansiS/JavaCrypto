@@ -90,7 +90,7 @@ public class SymmetricEncryptionController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     public SymmetricEncryption encrypt(@RequestBody SymmetricEncryption symmetricEncryption) {
 
-        if (symmetricEncryption.getEncAlgo() == "AES" || symmetricEncryption.getEncAlgo().equals("AES")) {
+        if (symmetricEncryption.getEncAlgo().compareToIgnoreCase("AES") == 0) {
             symmetricEncryption.setBase64EncodedEncryptedCipherText(
                     aesCipherAPI.encrypt(
                             symmetricEncryption.getBase64EncodedKey(),
@@ -130,7 +130,7 @@ public class SymmetricEncryptionController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public SymmetricEncryption decrypt(@RequestBody SymmetricEncryption symmetricEncryption) {
-        if(symmetricEncryption.getEncAlgo() == "AES"|| symmetricEncryption.getEncAlgo().equals("AES")) {
+        if(symmetricEncryption.getEncAlgo().compareToIgnoreCase("AES") == 0) {
                 symmetricEncryption.setPlainText(
                         aesCipherAPI.decrypt(symmetricEncryption.getBase64EncodedKey(),
                         symmetricEncryption.getBase64EncodeIV(),

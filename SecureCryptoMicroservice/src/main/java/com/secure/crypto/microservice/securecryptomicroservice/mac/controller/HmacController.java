@@ -53,7 +53,7 @@ public class HmacController {
     }
     /***
      * Computes MAC for passed plain text message, using computed symmetric key.
-     * Sample Request: curl 'http://localhost:8080/compute-mac' -X POST -H "Content-type: application/json" -d '{"message":"Hello MAC!!!","base64-symmetric-key":"S20l/hZnaqoAvGx9CwdmJgeWOW7bsYJYPqebcECgMQs="}' | json_pp
+     * Sample Request: curl 'http://localhost:8080/compute-hmac' -X POST -H "Content-type: application/json" -d '{"message":"Hello MAC!!!","base64-symmetric-key":"S20l/hZnaqoAvGx9CwdmJgeWOW7bsYJYPqebcECgMQs="}' | json_pp
      * @param hmac : Pass message and base64-symmetric-key parameters
      * @return:
      *

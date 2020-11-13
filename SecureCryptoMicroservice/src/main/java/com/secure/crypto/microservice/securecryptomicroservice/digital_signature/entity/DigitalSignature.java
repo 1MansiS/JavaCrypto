@@ -37,7 +37,16 @@ public class DigitalSignature {
         return asymm_algo;
     }
 
+    @JsonProperty
     public void setAsymm_algo(String asymm_algo) {
+
+        if(
+                !((asymm_algo.toLowerCase().equals("ed-curve")) ||
+                (asymm_algo.toLowerCase().equals("eddsa")))
+
+        ) {
+            throw new RuntimeException(asymm_algo + " should be either ed-curve or eddsa");
+        }
         this.asymm_algo = asymm_algo;
     }
 
