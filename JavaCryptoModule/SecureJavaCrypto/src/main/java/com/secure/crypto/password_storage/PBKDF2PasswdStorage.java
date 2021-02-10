@@ -6,7 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
-public class KDFPasswdStorage {
+public class PBKDF2PasswdStorage {
 
     private int ITERATION_COUNT = 1500000;
     private int DERIVED_KEY_LENGTH = 256;

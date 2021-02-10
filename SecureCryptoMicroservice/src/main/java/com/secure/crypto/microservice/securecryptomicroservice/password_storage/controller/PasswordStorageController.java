@@ -1,7 +1,8 @@
 package com.secure.crypto.microservice.securecryptomicroservice.password_storage.controller;
 
 import com.secure.crypto.microservice.securecryptomicroservice.password_storage.entity.KDFPasswordStorageEntity;
-import com.secure.crypto.password_storage.KDFPasswdStorage;
+import com.secure.crypto.password_storage.PBKDF2PasswdStorage;
+import com.secure.crypto.password_storage.Argon2idPasswdStorage;
 import com.secure.crypto.secure_random.SecureRandomAPI;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +16,9 @@ import java.util.Base64;
 public class PasswordStorageController {
 
     SecureRandomAPI secureRandomAPI = new SecureRandomAPI();
-    KDFPasswdStorage kdfPasswdStorage = new KDFPasswdStorage();
+    PBKDF2PasswdStorage pbkdf2PasswdStorage = new PBKDF2PasswdStorage();
+
+    Argon2idPasswdStorage argon2idPasswdStorage = new Argon2idPasswdStorage() ;
 
 
     /***
@@ -64,14 +67,20 @@ public class PasswordStorageController {
 
         if(kdfPasswordStorageEntity.getPasswdHashingAlgo().compareToIgnoreCase("pbkdf2") == 0) {
             kdfPasswordStorageEntity.setBase64KDFPasswd(
-                    kdfPasswdStorage.generatePasswdForStorage(
+                    pbkdf2PasswdStorage.generatePasswdForStorage(
                             kdfPasswordStorageEntity.getPlainTextPassword(),
                             kdfPasswordStorageEntity.getBase64Salt()
                     )
             );
-        } else { // Only other supportd algorithm is Argon2
-            // ToDo
+        } else { // Only other supported algorithm is Argon2id
+            kdfPasswordStorageEntity.setBase64KDFPasswd(
+                    argon2idPasswdStorage.generatePasswdForStorage(
+                        kdfPasswordStorageEntity.getPlainTextPassword(),
+                            kdfPasswordStorageEntity.getBase64Salt()
+                    )
+            );
         }
+
         return kdfPasswordStorageEntity;
     }
 }

@@ -160,7 +160,7 @@ Response:
    "base64-salt" : "ceUHx5NH2/mE5CIoylRuSzqB/BI="
 }
 
-Step 2: Compute Hash using KDF
+Step 2A: Compute Hash using KDF (pbkdf2)
 Request: curl 'http://localhost:8080/compute-kdf-passwd' -X POST -H "Content-type: application/json"  -d '{"base64-salt":"ceUHx5NH2/mE5CIoylRuSzqB/BI=","passwd":"mysupersecretpasswordtobestored!!!","kdf-algo":"pbkdf2"}'| json_pp
 
 Response: 
@@ -169,6 +169,17 @@ Response:
    "kdf-algo" : "pbkdf2",
    "passwd" : "mysupersecretpasswordtobestored!!!",
    "base64-salt" : "ceUHx5NH2/mE5CIoylRuSzqB/BI="
+}
+
+Step 2B: Compute Hash Using Argon2
+Request: curl 'http://localhost:8080/compute-kdf-passwd' -X POST -H "Content-type: application/json"  -d '{"base64-salt":"ceUHx5NH2/mE5CIoylRuSzqB/BI=","passwd":"mysupersecretpasswordtobestored!!!","kdf-algo":"argon2"}'| json_pp
+
+Response:
+{
+   "base64-salt" : "ceUHx5NH2/mE5CIoylRuSzqB/BI=",
+   "kdf-algo" : "argon2",
+   "passwd" : "mysupersecretpasswordtobestored!!!",
+   "base64-kdf-passwd-hash" : "Sz6PN76+HFgw3AFF+ZqYCkTsQzTiZc1mJlk07gqVj/o="
 }
 ```
 
