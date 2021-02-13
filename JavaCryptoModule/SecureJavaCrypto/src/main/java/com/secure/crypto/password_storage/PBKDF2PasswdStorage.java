@@ -8,8 +8,8 @@ import java.util.Base64;
 
 public class PBKDF2PasswdStorage {
 
-    private int ITERATION_COUNT = 1500000;
-    private int DERIVED_KEY_LENGTH = 256;
+    private int ITERATION_COUNT = 150000;
+    private int DERIVED_KEY_LENGTH = 32; // specify in bytes
 
     private String PBKDF_ALGO = "PBKDF2WithHmacSHA512";
 

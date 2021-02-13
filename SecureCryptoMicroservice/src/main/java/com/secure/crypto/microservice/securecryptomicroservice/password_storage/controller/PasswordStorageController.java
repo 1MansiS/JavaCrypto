@@ -2,7 +2,10 @@ package com.secure.crypto.microservice.securecryptomicroservice.password_storage
 
 import com.secure.crypto.microservice.securecryptomicroservice.password_storage.entity.KDFPasswordStorageEntity;
 import com.secure.crypto.password_storage.PBKDF2PasswdStorage;
+import com.secure.crypto.password_storage.BCryptPasswdStorage;
+import com.secure.crypto.password_storage.ScryptPasswdStorage;
 import com.secure.crypto.password_storage.Argon2idPasswdStorage;
+
 import com.secure.crypto.secure_random.SecureRandomAPI;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +20,8 @@ public class PasswordStorageController {
 
     SecureRandomAPI secureRandomAPI = new SecureRandomAPI();
     PBKDF2PasswdStorage pbkdf2PasswdStorage = new PBKDF2PasswdStorage();
-
+    BCryptPasswdStorage bcryptPasswdStorage = new BCryptPasswdStorage();
+    ScryptPasswdStorage scryptPasswdStorage = new ScryptPasswdStorage();
     Argon2idPasswdStorage argon2idPasswdStorage = new Argon2idPasswdStorage() ;
 
 
@@ -72,7 +76,22 @@ public class PasswordStorageController {
                             kdfPasswordStorageEntity.getBase64Salt()
                     )
             );
-        } else { // Only other supported algorithm is Argon2id
+        } else if(kdfPasswordStorageEntity.getPasswdHashingAlgo().compareToIgnoreCase("bcrypt") == 0) {
+            kdfPasswordStorageEntity.setBase64KDFPasswd(
+                    bcryptPasswdStorage.generatePasswdForStorage(
+                            kdfPasswordStorageEntity.getPlainTextPassword(),
+                            kdfPasswordStorageEntity.getBase64Salt()
+                    )
+            );
+        } else if(kdfPasswordStorageEntity.getPasswdHashingAlgo().compareToIgnoreCase("scrypt") ==0) {
+            kdfPasswordStorageEntity.setBase64KDFPasswd(
+                    scryptPasswdStorage.generatePasswdForStorage(
+                            kdfPasswordStorageEntity.getPlainTextPassword(),
+                            kdfPasswordStorageEntity.getBase64Salt()
+                    )
+            );
+        }
+        else { // If none of above, than argon2
             kdfPasswordStorageEntity.setBase64KDFPasswd(
                     argon2idPasswdStorage.generatePasswdForStorage(
                         kdfPasswordStorageEntity.getPlainTextPassword(),

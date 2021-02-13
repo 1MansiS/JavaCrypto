@@ -63,7 +63,7 @@ public class KDFPasswordStorageEntity {
 
     @JsonProperty
     public void setPasswdHashingAlgo(String passwdHashingAlgo) {
-        if(!(passwdHashingAlgo.toLowerCase().equals("argon2") || passwdHashingAlgo.toLowerCase().equals("pbkdf2"))) {
+        if(!(passwdHashingAlgo.toLowerCase().equals("argon2") || passwdHashingAlgo.toLowerCase().equals("pbkdf2") || passwdHashingAlgo.toLowerCase().equals("bcrypt") || passwdHashingAlgo.toLowerCase().equals("scrypt")   )) {
             throw new RuntimeException(passwdHashingAlgo + " value is invalid. Only acceptable values are Argon2 or PBKDF2");
         }
         this.passwdHashingAlgo = passwdHashingAlgo;

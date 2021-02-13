@@ -7,6 +7,9 @@ import java.util.Base64;
 
 public class Argon2idPasswdStorage {
 
+    private int NO_OF_ITERATIONS = 10;
+    private int ALLOCATED_MEMORY = 16777;
+    private int PARALLELISM = 4;
    /*
    This API, returns Argonid version of plain text password ready for storage
 
@@ -17,14 +20,15 @@ public class Argon2idPasswdStorage {
     */
 
     public String generatePasswdForStorage(String plainTextPasswd, String salt) {
+        long start = System.currentTimeMillis();
         // Build Argon2 Parameters
         Argon2Parameters.Builder argon2Parameters = (new Argon2Parameters.Builder()).
                 withVersion(Argon2Parameters.ARGON2_id) // For password storage recommended mode of operation to protect against both side-channel and timing attacks.
-                .withIterations(3) // No of times memory array will be filled
-                .withMemoryAsKB(64) // Amount of memory assigned
-                .withParallelism(4) // # of Parallel processing units
+                .withIterations(NO_OF_ITERATIONS) // No of times memory array will be filled
+                .withMemoryAsKB(ALLOCATED_MEMORY) // Amount of memory assigned, in KB
+                .withParallelism(PARALLELISM) // # of Parallel processing units
                 .withSecret(plainTextPasswd.getBytes()) //password
-                .withSalt(salt.getBytes()); // 64 bytes of CSPRNG unique salt
+                .withSalt(Base64.getDecoder().decode(salt)); // 256 bits of CSPRNG unique salt
 
         Argon2BytesGenerator argon2passwordGenerator = new Argon2BytesGenerator();
         argon2passwordGenerator.init(argon2Parameters.build()); // Initializing Argon2 algorithm with configured parameters
@@ -34,7 +38,8 @@ public class Argon2idPasswdStorage {
 
 
         argon2passwordGenerator.generateBytes(plainTextPasswd.getBytes(), passwdHash); // Finally, putting it all together to compute the password hash
-
+        long end = System.currentTimeMillis();
+        System.out.println("Argon2 took " + (end - start));
         return Base64.getEncoder().encodeToString(passwdHash);
 
     }
