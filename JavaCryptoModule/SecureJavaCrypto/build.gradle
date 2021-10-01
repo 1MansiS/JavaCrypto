@@ -3,14 +3,20 @@ plugins {
     id "com.zyxist.chainsaw" version "0.3.1"
 }
 
+configurations {
+    testCompile
+}
+
 version '2.0-RELEASE'
 
-sourceCompatibility = 1.15
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.66'
+     implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.64'
 }
+

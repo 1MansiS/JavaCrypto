@@ -1,11 +1,11 @@
-FROM adoptopenjdk/openjdk15
+FROM openjdk:17
 RUN java --version
 WORKDIR /gradle
-RUN curl -L https://services.gradle.org/distributions/gradle-6.7-bin.zip -o  gradle-6.7-bin.zip
+RUN curl -L https://services.gradle.org/distributions/gradle-7.2-bin.zip -o  gradle-7.2-bin.zip
 RUN apt-get update
 RUN apt-get install zip unzip
-RUN unzip gradle-6.7-bin.zip
-ENV GRADLE_HOME=/gradle/gradle-6.7
+RUN unzip gradle-7.2-bin.zip
+ENV GRADLE_HOME=/gradle/gradle-7.2
 ENV PATH=$PATH:$GRADLE_HOME/bin
 RUN gradle --version
 
@@ -18,5 +18,5 @@ RUN gradle clean compileJava assemble --stacktrace
 WORKDIR ../SecureCryptoMicroservice
 RUN gradle clean compileJava assemble --stacktrace
 ENTRYPOINT ["java", "-jar" , "build/libs/SecureCryptoMicroservice-0.0.1-SNAPSHOT.jar"]
-#EXPOSE 8080
+EXPOSE 8080
 

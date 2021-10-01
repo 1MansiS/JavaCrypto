@@ -1,6 +1,7 @@
 buildscript {
     ext {
-        springBootVersion = '2.0.4.RELEASE'
+        springBootVersion = '2.5.5'
+        mainClassName = 'com.secure.crypto.microservice.securecryptomicroservice.SecureCryptoMicroServiceApplication'
     }
     repositories {
         mavenLocal()
@@ -16,9 +17,13 @@ apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
+
 group = 'com.secure.crypto.microservice'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.15
+version = '0.0.2-SNAPSHOT'
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
 
 repositories {
     mavenCentral()
@@ -26,7 +31,7 @@ repositories {
 
 
 dependencies {
-    compile fileTree(dir : '../JavaCryptoModule/SecureJavaCrypto/build/libs' , includes: ['*.jar'])
-    compile('org.springframework.boot:spring-boot-starter-web')
-    compile('org.bouncycastle:bcprov-jdk15on:1.65.01')	
+    implementation fileTree(dir : '../JavaCryptoModule/SecureJavaCrypto/build/libs' , includes: ['*.jar'])
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.64'
 }

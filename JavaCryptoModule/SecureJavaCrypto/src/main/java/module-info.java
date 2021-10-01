@@ -15,4 +15,6 @@ module SecureJavaCrypto {
     exports com.secure.crypto.digital_signature;
 
     exports com.secure.crypto.password_storage;
+
+    exports com.secure.crypto.key_management;
 }
