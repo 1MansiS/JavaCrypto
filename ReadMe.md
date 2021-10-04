@@ -250,6 +250,7 @@ Response:
 Key Management using Keystore:
 -----------------------------
 
+```
 Request: curl -X POST 'http://localhost:8080/store-secret-key' -H 'Content-Type: application/json' -d '{"key-store-password":"key-store-password","entry-password":"entry-password","alias":"alias"}' | json_pp
 
 Response: 
@@ -259,6 +260,7 @@ Response:
    "key-store-password" : "key-store-password",
    "Response" : "Successfully saved Secret Key with alias alias"
 }
+```
 
 # Security Architecture Must-dos
 * A matured Key Management System (for e.g. AWS KMS, vault, Safenet etc), should be used for any kind of key material management (like encryption keys, initialization vectors, salts, password hashes etc) management. Just to keep above microservice, as a simple demo on how to use Java crypto module, I have taken various shortcuts. 
