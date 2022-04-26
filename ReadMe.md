@@ -1,4 +1,4 @@
-Above code base, has a Java Module (`JavaCryptoModule`), which exposes apis, responsible for performing various cryptographic primitives in a most secure way possible thru JCA. 
+Above code base, has a configurable Java Module (`JavaCryptoModule`), which exposes apis, responsible for performing various cryptographic primitives in a most secure way possible thru JCA. 
 
 This module has support for performing:
 
@@ -12,14 +12,49 @@ This module has support for performing:
 
 Docker image can be downloaded from [docker.hub](https://hub.docker.com/r/1mansis/javacrypto/), which should build and setup all above for anyone who wishes to experiment with this. 
 
-# Docker setup:
+# Requirements:
+- Java version 8 or above.
+- gradle build tool.
+
+# Building
+
+## Step 1: Clone this repository
+`git clone https://github.com/1MansiS/JavaCrypto.git`
+
+## Step 2: Build Crypto Module:
+
+```
+cd JavaCryptoModule/SecureJavaCrypto 
+gradle clean build
+```
+
+## Step 3: (Optional) Only if planning to use the Microservice endpoints:
+
+Build the microservice:
+
+```
+cd SecureCryptoMicroservice 
+gradle clean build
+```
+
+To access these endpoints you can run it as:
+
+```
+java -jar build/libs/SecureCryptoMicroservice-0.0.2-SNAPSHOT.jar 
+```
+
+## Docker setup:
+
+All checkins to this repository triggers a github actions which building a docker image with latest checkins and pushes the image to docker hub. You can directly pick it up from there.
 
 ```
 docker pull 1mansis/javacrypto
 docker run -p 8080:8080 1mansis/javacrypto
 ```
 
-Once you have the image going, follow corresponding sections below on how to use various micro service endpoints:
+Depending on how you choose to use the module, follow corresponding sections below on how to use various micro service endpoints depicting cryptographic primitives:
+
+(**Note:** Used local microservice endpoints here. If you are using docker, change accordingly.)
 
 ## Encryption/Decryption:
 
@@ -266,4 +301,20 @@ Response:
 * A matured Key Management System (for e.g. AWS KMS, vault, Safenet etc), should be used for any kind of key material management (like encryption keys, initialization vectors, salts, password hashes etc) management. Just to keep above microservice, as a simple demo on how to use Java crypto module, I have taken various shortcuts. 
 * Every effort is being taken to keep above microservice stateless. This mitigates  complicated 2 way ssl, and certificate management. But, make sure all communication is happening over https.
 
-	
+# Future wish list:
+
+- Support for some quantum ready APIs.
+- IRL type of deployment using Istio + mTLS.
+
+# LICENSE
+
+JavaCrypto is released under [MIT License](https://opensource.org/licenses/MIT)
+
+```
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+
+# DISCLAIMER:
+JavaCrypto came into existance and matured over time more as a complimenting code reference for [Java Crypto blog series](https://1mansis.github.io) and numberous [conference talks](https://1mansis.github.io/SpeakingEngagements) on this topic. Not accepting any PR/bug reports at the moment. All work done as part of this is a personal project, so direct all complaints to me.

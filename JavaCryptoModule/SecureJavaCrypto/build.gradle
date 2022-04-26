@@ -17,6 +17,7 @@ repositories {
 }
 
 dependencies {
+     // Mainly for Argon2id, bcrypt and scrypt algorithms
      implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.64'
 }
 
