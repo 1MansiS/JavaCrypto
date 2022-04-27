@@ -9,8 +9,8 @@ configurations {
 
 version '2.0-RELEASE'
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = JavaVersion.VERSION_18
+targetCompatibility = JavaVersion.VERSION_18
 
 repositories {
     mavenCentral()
