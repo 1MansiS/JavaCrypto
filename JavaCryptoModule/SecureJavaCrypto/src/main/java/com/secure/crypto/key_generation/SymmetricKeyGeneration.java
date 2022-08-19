@@ -20,6 +20,9 @@ public class SymmetricKeyGeneration {
         SecretKey secretKey = null;
         KeyGenerator keyGenerator = null ;
 
+        if(encryptionAlgo == null) {encryptionAlgo = "AES";}
+        else {encryptionAlgo = "ChaCha20";}
+
         // Preparing Key generation object
         try {
             keyGenerator = KeyGenerator.getInstance(encryptionAlgo);

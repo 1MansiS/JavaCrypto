@@ -5,28 +5,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SymmetricEncryption {
 
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    @JsonProperty(value="key_size", required=false)
-    private int keySize;
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonProperty(value="enc_algo", required=true)
+    @JsonProperty(value="enc_algo")
     private String encAlgo;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonProperty(value="symmetric_key")
+    @JsonProperty(value="base64_symmetric_key")
     private String base64EncodedKey;
 
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    @JsonProperty(value="iv_size")
-    private int ivSize;
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonProperty(value="IV")
+    @JsonProperty(value="base64_iv")
     private String base64EncodeIV;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonProperty(value="plain_text")
+    @JsonProperty(value = "plain_text")
     private String plainText;
 
     @JsonProperty(value="base64_cipher_text")
@@ -45,20 +37,6 @@ public class SymmetricEncryption {
         this.base64EncodedEncryptedCipherText = base64EncodedEncryptedCipherText;
     }
 
-    public int getIvSize() {
-        return ivSize;
-    }
-
-    @JsonProperty
-    public void setIvSize(int ivSize) {
-
-        if(ivSize < 12 ) {
-            throw new RuntimeException(ivSize + " is too less for an Initialization Vector. Choose something greater than 12 bytes (96 bits)");
-        }
-        this.ivSize = ivSize;
-
-    }
-
     public String getBase64EncodeIV() {
         return base64EncodeIV;
     }
@@ -70,6 +48,7 @@ public class SymmetricEncryption {
     public String getBase64EncodedKey() {
         return base64EncodedKey;
     }
+
 
     public String getPlainText() {
         return plainText;
@@ -91,14 +70,6 @@ public class SymmetricEncryption {
         this.aad = aad;
     }
 
-    public int getKeySize() {
-        return keySize;
-    }
-
-    public void setKeySize(int keySize) {
-        this.keySize = keySize;
-    }
-
     public String getEncAlgo() {
         return encAlgo;
     }
@@ -108,8 +79,6 @@ public class SymmetricEncryption {
         if(!(encAlgo.toLowerCase().equals("aes") || encAlgo.toLowerCase().equals("chacha20"))) {
             throw new RuntimeException("Value " + encAlgo + " is invalid. Only valid values are AES or ChaCha20");
         }
-        this.encAlgo = encAlgo;
-
-
+        this.encAlgo = encAlgo.toLowerCase();
     }
 }

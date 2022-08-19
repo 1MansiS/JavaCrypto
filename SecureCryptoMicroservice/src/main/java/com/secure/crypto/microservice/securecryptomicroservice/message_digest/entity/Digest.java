@@ -10,6 +10,12 @@ public class Digest {
     @JsonProperty("message")
     private String message;
 
+
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty(value="hashing-algo")
+    private String hashingAlgo;
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("hash")
     private String hash;
@@ -28,6 +34,14 @@ public class Digest {
 
     public void setHash(String hash) {
         this.hash = hash;
+    }
+
+    public String getHashingAlgo() {
+        return hashingAlgo;
+    }
+
+    public void setHashingAlgo(String hashingAlgo) {
+        this.hashingAlgo = hashingAlgo;
     }
 
 }

@@ -3,12 +3,14 @@ package com.secure.crypto.microservice.securecryptomicroservice.mac.controller;
 import com.secure.crypto.key_generation.SymmetricKeyGeneration;
 import com.secure.crypto.mac.MACComputationAPI;
 import com.secure.crypto.microservice.securecryptomicroservice.mac.entity.Hmac;
-
-import java.security.SecureRandom;
-
 import com.secure.crypto.secure_random.SecureRandomAPI;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.security.SecureRandom;
 
 @RestController
 public class HmacController {
@@ -32,7 +34,7 @@ public class HmacController {
      * }
      *
      */
-    @PostMapping(value="compute-hmac-key",
+    @GetMapping(value="compute-hmac-key",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
             )

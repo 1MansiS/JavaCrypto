@@ -5,9 +5,7 @@ import com.secure.crypto.digital_signature.EdDigitalSignatureAPI;
 import com.secure.crypto.key_generation.AsymmetricKeyGeneration;
 import com.secure.crypto.microservice.securecryptomicroservice.digital_signature.entity.DigitalSignature;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.KeyPair;
 import java.util.Base64;
@@ -21,27 +19,24 @@ public class DigitalSignatureController {
 
     /***
      * Generated Asymmetric Keys. Specify the  digital signature  algorithm to be  used. Only accepted values are ed-curve (edward curves)  or eddsa(NIST curves)
-     * Sample Request: curl -X POST 'http://localhost:8080/generate-asymmetric-key' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve"}' | json_pp
-     * @param digitalSignature  :  Expects asymm_algo with only expects values of ed-curve or ecdsa
+     * Sample Request: curl -X POST 'http://localhost:8080/generate-digital-signature-parameters/{digital_signature_algo}' | json_pp
+     * @param digital_signature_algo  :  Expects asymm_algo with only expects values of ed-curve or ecdsa
      * @return : base64 encoded public and private keys
      * {
-     *    "asymm_algo" : "ed-curve",
-     *    "base64_public_key" : "MCowBQYDK2VwAyEAW5CKDO5xEO5EVVIcMeBFJ0w4nI6MDmWjWEHgZ4Zqeoc=",
-     *    "base64_private_key" : "MC4CAQAwBQYDK2VwBCIEIJtmYm8YaxQW50/LI8Uhf3ft1uUB7kKHbK7jF0Ze1SqF"
+     *    "digital_signature_algo" : "ed-curve",
+     *    "base64_private_key" : "MC4CAQAwBQYDK2VwBCIEIOcF/tgt18Cv1F3i3Jw7SJL3RgbjeO9NxrfSOxVBIJ1B",
+     *    "base64_public_key" : "MCowBQYDK2VwAyEADzMUhYWEdBCl6XUlc5/PT7BuvFjFayaaCp2ktatJRxc="
      * }
      */
-    @PostMapping(value="/generate-asymmetric-key",
-                    produces = MediaType.APPLICATION_JSON_VALUE,
-                    consumes = MediaType.APPLICATION_JSON_VALUE
-                )
-    public DigitalSignature generateAsymmetricKey(@RequestBody DigitalSignature digitalSignature) {
+    @RequestMapping(value={"/generate-digital-signature-parameters","/generate-digital-signature-parameters/{digital_signature_algo}"})
+    public DigitalSignature generateDigitalSignatureParameters(@PathVariable(required = false)String digital_signature_algo) {
+        DigitalSignature digitalSignature = new DigitalSignature();
+
         KeyPair keyPair = null;
 
-        if (digitalSignature.getAsymm_algo().compareToIgnoreCase("ed-curve") == 0) { // Its asking to use Edward Curves
-            keyPair = asymmetricKeyGeneration.generateEdAsymmetricKey();
-        } else { // Use a safe NIST curves (ecdsa)
-            keyPair = asymmetricKeyGeneration.generateECAsymmetricKey();
-        }
+        if (digital_signature_algo != null && digital_signature_algo.compareToIgnoreCase("ed-curve") == 0) {keyPair = asymmetricKeyGeneration.generateEdAsymmetricKey();digitalSignature.setAsymm_algo("ed-curve");}
+        else if(digital_signature_algo != null && digital_signature_algo.compareToIgnoreCase("eddsa") == 0){keyPair = asymmetricKeyGeneration.generateECAsymmetricKey();digitalSignature.setAsymm_algo("eddsa");}
+        else if(digital_signature_algo == null) {keyPair = asymmetricKeyGeneration.generateEdAsymmetricKey(); digitalSignature.setAsymm_algo("ed-curve");} // Defaults to Ed Curve
 
         digitalSignature.setBase64EncodedPublicKey(Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()));
         digitalSignature.setBase64EncodedPrivateKey(Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded()));
@@ -51,14 +46,15 @@ public class DigitalSignatureController {
 
     /***
      * This endpoint, generated the digital signature for the message passed
-     * Sample Request: curl -X POST 'http://localhost:8080/sign' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve","base64_private_key":"MC4CAQAwBQYDK2VwBCIEIJtmYm8YaxQW50/LI8Uhf3ft1uUB7kKHbK7jF0Ze1SqF","plaintext_message":"Hello World!"}' | json_pp
+     * Sample Request: curl -X POST 'http://localhost:8080/sign' -H  "Content-Type: application/json" \
+     * -d '{"digital_signature_algo":"ed-curve","base64_private_key":"MC4CAQAwBQYDK2VwBCIEIEkeQ5bKh7NQt5TxRhIEaSkpB7XY4KFZ8M9zsG0heVPS","plaintext_message":"Hello World!"}' | json_pp
      * @param digitalSignature: Pass the asymm_algo, base64_private_key and plaintext_message
      * @return : Base 64 signature value:
      *{
-     *    "plaintext_message" : "Hello World!",
-     *    "asymm_algo" : "ed-curve",
-     *    "base64_sign" : "FOh5uarkS3MMdkraAUJywSK8M/SXQbgbOjjze0zgsDzQ0QqH3++dbeev/WPdKdKXQwRDzY0v8rUKP1rDAL0MBQ==",
-     *    "base64_private_key" : "MC4CAQAwBQYDK2VwBCIEIJtmYm8YaxQW50/LI8Uhf3ft1uUB7kKHbK7jF0Ze1SqF"
+     *    "base64_private_key" : "MC4CAQAwBQYDK2VwBCIEIAWrd/47VIbIFtbOE34Kwsj8Is1FsLBSXDpUMNpAZ/H1",
+     *    "base64_sign" : "9dIBdU4Gjjb0BDtfmWIF1jl3ODbrAdaCjUlTfO3/JGxQu4VUW6LBiZrTTaeLMZhRdnQ+uw07uogIZey1iGlaAw==",
+     *    "digital_signature_algo" : "ed-curve",
+     *    "plaintext_message" : "Hello World!"
      * }
      */
     @PostMapping(value="/sign",
@@ -67,37 +63,43 @@ public class DigitalSignatureController {
         )
     public DigitalSignature sign(@RequestBody DigitalSignature digitalSignature) {
 
-
-        if(digitalSignature.getAsymm_algo().compareToIgnoreCase("ed-curve") == 0) { // Use Edward Curves
+        if(digitalSignature.getAsymm_algo() != null && digitalSignature.getAsymm_algo().compareToIgnoreCase("ed-curve") == 0) { // Use Edward Curves
             digitalSignature.setBase64Signature(
                     edDigitalSignatureAPI.sign(
                             digitalSignature.getPlaintext_message(),
                             digitalSignature.getBase64EncodedPrivateKey())
             );
-        } else { // Use NIST curves
+        } else if(digitalSignature.getAsymm_algo() != null && digitalSignature.getAsymm_algo().compareToIgnoreCase("eddsa") == 0){
             digitalSignature.setBase64Signature(
                     ecDigitalSignatureAPI.sign(
                             digitalSignature.getPlaintext_message(),
                             digitalSignature.getBase64EncodedPrivateKey()
                     )
             );
+        } else if(digitalSignature.getAsymm_algo() == null) { // Defaults to Ed Curves
+            digitalSignature.setAsymm_algo("ed-curve");
+            digitalSignature.setBase64Signature(
+                    edDigitalSignatureAPI.sign(
+                            digitalSignature.getPlaintext_message(),
+                            digitalSignature.getBase64EncodedPrivateKey())
+            );
         }
-
 
         return digitalSignature;
     }
 
     /***
      * This endpoint, verifies the digital signature passed
-     * Samepl Request: curl -X POST 'http://localhost:8080/verify' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve","plaintext_message":"Hello World!","base64_public_key":"MCowBQYDK2VwAyEAW5CKDO5xEO5EVVIcMeBFJ0w4nI6MDmWjWEHgZ4Zqeoc=","base64_sign":"FOh5uarkS3MMdkraAUJywSK8M/SXQbgbOjjze0zgsDzQ0QqH3++dbeev/WPdKdKXQwRDzY0v8rUKP1rDAL0MBQ=="}' | json_pp
+     * Sample Request: curl -X POST 'http://localhost:8080/verify' -H  "Content-Type: application/json" \
+     * -d '{"plaintext_message":"Hello World!","base64_public_key":"MCowBQYDK2VwAyEAJF7iwf5nmWq+5znvKj1+F4ILsKRK6QUYmEIocUNFLFc=","base64_sign":"9dIBdU4Gjjb0BDtfmWIF1jl3ODbrAdaCjUlTfO3/JGxQu4VUW6LBiZrTTaeLMZhRdnQ+uw07uogIZey1iGlaAw=="}' | json_pp
      * @param digitalSignature: Expects: asymm_algo, base64_public_key, plaintext_message and base64_sign
      * @return: If the signature is verified. Look for the value of verified  key in response json string.
      * {
-     *    "base64_sign" : "FOh5uarkS3MMdkraAUJywSK8M/SXQbgbOjjze0zgsDzQ0QqH3++dbeev/WPdKdKXQwRDzY0v8rUKP1rDAL0MBQ==",
+     *    "base64_public_key" : "MCowBQYDK2VwAyEAq6ATMBErxIChQkN65+kWXr5kTXltNSkU2K7kkK/OEdU=",
+     *    "base64_sign" : "N6JMKDPJZTfmlwVga2/vJrLrnIWHmcAmIS7hUUPo8qeST3R0b5LUosYBzknbRcdj3km0zC0P195VHkd0dSJQAA==",
+     *    "digital_signature_algo" : "ed-curve",
      *    "plaintext_message" : "Hello World!",
-     *    "asymm_algo" : "ed-curve",
-     *    "verified" : true,
-     *    "base64_public_key" : "MCowBQYDK2VwAyEAW5CKDO5xEO5EVVIcMeBFJ0w4nI6MDmWjWEHgZ4Zqeoc="
+     *    "verified" : true
      * }
      */
     @PostMapping(value="/verify",
@@ -106,7 +108,7 @@ public class DigitalSignatureController {
     )
     public DigitalSignature verify(@RequestBody DigitalSignature digitalSignature) {
 
-        if(digitalSignature.getAsymm_algo().compareToIgnoreCase("ed-curve") == 0){ // Use Edward Curves
+        if(digitalSignature.getAsymm_algo() != null && digitalSignature.getAsymm_algo().compareToIgnoreCase("ed-curve") == 0){ // Use Edward Curves
             digitalSignature.setVerified(
                     edDigitalSignatureAPI.verify(
                             digitalSignature.getPlaintext_message(),
@@ -114,9 +116,18 @@ public class DigitalSignatureController {
                             digitalSignature.getBase64Signature()
                     )
             );
-        } else { // Use NIST curves
+        } else if(digitalSignature.getAsymm_algo() != null && digitalSignature.getAsymm_algo().compareToIgnoreCase("eddsa") == 0){
             digitalSignature.setVerified(
                     ecDigitalSignatureAPI.verify(digitalSignature.getPlaintext_message(),
+                            digitalSignature.getBase64EncodedPublicKey(),
+                            digitalSignature.getBase64Signature()
+                    )
+            );
+        } else if(digitalSignature.getAsymm_algo() == null) { // Defaults to Ed Curves
+            digitalSignature.setAsymm_algo("ed-curve");
+            digitalSignature.setVerified(
+                    edDigitalSignatureAPI.verify(
+                            digitalSignature.getPlaintext_message(),
                             digitalSignature.getBase64EncodedPublicKey(),
                             digitalSignature.getBase64Signature()
                     )
@@ -126,39 +137,3 @@ public class DigitalSignatureController {
         return digitalSignature;
     }
 }
-
-/*
-Workflow using ecdsa algorithm(NIST curves):
-
-Step 1: Generating Keys:
-
-Sample Request: curl -X POST 'http://localhost:8080/generate-asymmetric-key' -H  "Content-Type: application/json" -d '{"asymm_algo":"eddsa"}' | json_pp
-Response: {
-   "asymm_algo" : "eddsa",
-   "base64_public_key" : "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEnQMUFAvChWOt+pf8f5miYpdpccyMFftjNDQouNjEnoA2TrUM67l72VGIenGUZu14zBqx+ZseqhQB1DrfyTmgWRcVr2RhKkv5DfC9TJBQSU9uoQYvCzJ7Z45fpYpwIa8g",
-   "base64_private_key" : "ME4CAQAwEAYHKoZIzj0CAQYFK4EEACIENzA1AgEBBDAOTIPhjObzlwUKcvoyqK6BFmvE03Ks+vThtOJQjt9+FViqMn4txAQYweIAIwepUjg="
-}
-
-Step 2: Sign
-
-Sample Request: curl -X POST 'http://localhost:8080/sign' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve","base64_private_key":"ME4CAQAwEAYHKoZIzj0CAQYFK4EEACIENzA1AgEBBDDT9/95QqyOTT2J3brAwt41BTqcB2XLVdO1BbOFGt/1pAlStmiw525ZMpLugT7vPd4","plaintext_message":"Hello World!"}' | json_pp
-Response: {
-   "base64_private_key" : "ME4CAQAwEAYHKoZIzj0CAQYFK4EEACIENzA1AgEBBDAOTIPhjObzlwUKcvoyqK6BFmvE03Ks+vThtOJQjt9+FViqMn4txAQYweIAIwepUjg",
-   "asymm_algo" : "eddsa",
-   "base64_sign" : "MGUCME4pcfKJgBebtxJKBUrMQREWX0YVwssWdSxnT7AbG7S4Su8gjQdi/rlmfsp/28xLWQIxANxagG7zeO1ZwTnrryD5EC0p06WGqS+nU8YqRJg5VOxO1sgeDKHeIlTF4OUOb6fjig==",
-   "plaintext_message" : "Hello World!!!!"
-}
-
-Step 3: Verify
-
-Sample Request: curl -X POST 'http://localhost:8080/verify' -H  "Content-Type: application/json" -d '{"asymm_algo":"eddsa","base64_public_key":"MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEnQMUFAvChWOt+pf8f5miYpdpccyMFftjNDQouNjEnoA2TrUM67l72VGIenGUZu14zBqx+ZseqhQB1DrfyTmgWRcVr2RhKkv5DfC9TJBQSU9uoQYvCzJ7Z45fpYpwIa8g","base64_sign":"MGUCME4pcfKJgBebtxJKBUrMQREWX0YVwssWdSxnT7AbG7S4Su8gjQdi/rlmfsp/28xLWQIxANxagG7zeO1ZwTnrryD5EC0p06WGqS+nU8YqRJg5VOxO1sgeDKHeIlTF4OUOb6fjig==","plaintext_message":"Hello World!!!!"}' | json_pp
-
-Response: {
-   "base64_sign" : "MGUCME4pcfKJgBebtxJKBUrMQREWX0YVwssWdSxnT7AbG7S4Su8gjQdi/rlmfsp/28xLWQIxANxagG7zeO1ZwTnrryD5EC0p06WGqS+nU8YqRJg5VOxO1sgeDKHeIlTF4OUOb6fjig==",
-   "asymm_algo" : "eddsa",
-   "base64_public_key" : "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEnQMUFAvChWOt+pf8f5miYpdpccyMFftjNDQouNjEnoA2TrUM67l72VGIenGUZu14zBqx+ZseqhQB1DrfyTmgWRcVr2RhKkv5DfC9TJBQSU9uoQYvCzJ7Z45fpYpwIa8g",
-   "verified" : true,
-   "plaintext_message" : "Hello World!!!!"
-}
-
- */

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class DigitalSignature {
 
     // Acceptable values ecdsa, eddsa
-    @JsonProperty("asymm_algo")
+    @JsonProperty("digital_signature_algo")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String asymm_algo;
 

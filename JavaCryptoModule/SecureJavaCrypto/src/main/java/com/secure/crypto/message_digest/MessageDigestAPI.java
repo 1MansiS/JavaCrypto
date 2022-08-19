@@ -18,19 +18,21 @@ public class MessageDigestAPI {
     @param data : Base64 encode
     @return : Base64 encoded hash
      */
-    public String generateMessageDigest(String data) {
+    public String generateMessageDigest(String data, String hashingAlgo) {
+
 
         BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(data.getBytes()));
 
         byte[] buff = new byte[MD_DATA_READ_BUFF]; // read configured no of bytes at a time
+        if(hashingAlgo == null) {hashingAlgo = MD_ALGO;}
 
         int count = 0;
 
         MessageDigest digest = null;
 
         try {
-            digest = MessageDigest.getInstance(MD_ALGO); // Returns instance of configured algorithm implementation, from the first provider configured in java.security config file.
-        } catch (NoSuchAlgorithmException e) {System.out.println("Algorithm " + MD_ALGO + " not supported by default provider. Error message " + e.getMessage()); System.exit(0);}
+            digest = MessageDigest.getInstance(hashingAlgo); // Returns instance of configured algorithm implementation, from the first provider configured in java.security config file.
+        } catch (NoSuchAlgorithmException e) {System.out.println("Algorithm " + hashingAlgo + " not supported by default provider. Error message " + e.getMessage()); System.exit(0);}
 
         try {
             while ((count = bis.read()) > 0) {

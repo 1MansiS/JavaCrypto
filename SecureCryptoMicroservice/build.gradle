@@ -33,5 +33,5 @@ repositories {
 dependencies {
     implementation fileTree(dir : '../JavaCryptoModule/SecureJavaCrypto/build/libs' , includes: ['*.jar'])
     implementation('org.springframework.boot:spring-boot-starter-web')
-    implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.64'
+    implementation group: 'org.bouncycastle', name: 'bcprov-jdk18on', version: '1.71'
 }

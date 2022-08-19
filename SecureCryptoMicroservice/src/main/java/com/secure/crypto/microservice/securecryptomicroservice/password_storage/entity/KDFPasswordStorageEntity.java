@@ -6,10 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class KDFPasswordStorageEntity {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonProperty("salt-size")
-    private String saltSize;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("base64-salt")
     private String base64Salt;
 
@@ -24,14 +20,6 @@ public class KDFPasswordStorageEntity {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("kdf-algo")
     private String passwdHashingAlgo;
-
-    public String getSaltSize() {
-        return saltSize;
-    }
-
-    public void setSaltSize(String saltSize) {
-        this.saltSize = saltSize;
-    }
 
     public String getBase64Salt() {
         return base64Salt;
@@ -64,7 +52,7 @@ public class KDFPasswordStorageEntity {
     @JsonProperty
     public void setPasswdHashingAlgo(String passwdHashingAlgo) {
         if(!(passwdHashingAlgo.toLowerCase().equals("argon2") || passwdHashingAlgo.toLowerCase().equals("pbkdf2") || passwdHashingAlgo.toLowerCase().equals("bcrypt") || passwdHashingAlgo.toLowerCase().equals("scrypt")   )) {
-            throw new RuntimeException(passwdHashingAlgo + " value is invalid. Only acceptable values are Argon2 or PBKDF2");
+            throw new RuntimeException(passwdHashingAlgo + " value is invalid. Only acceptable values are Argon2, bcrypt, scrypt or PBKDF2");
         }
         this.passwdHashingAlgo = passwdHashingAlgo;
     }

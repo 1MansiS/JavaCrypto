@@ -29,7 +29,7 @@ public class MessageDigestController {
                 )
     public Digest computeMessageDigest(@RequestBody Digest digest) {
         digest.setHash(
-                messageDigestAPI.generateMessageDigest(digest.getMessage())
+                messageDigestAPI.generateMessageDigest(digest.getMessage(), digest.getHashingAlgo())
         );
 
         return digest;

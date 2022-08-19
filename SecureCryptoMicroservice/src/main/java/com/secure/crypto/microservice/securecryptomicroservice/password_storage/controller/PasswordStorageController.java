@@ -8,9 +8,7 @@ import com.secure.crypto.password_storage.Argon2idPasswdStorage;
 
 import com.secure.crypto.secure_random.SecureRandomAPI;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -27,22 +25,28 @@ public class PasswordStorageController {
 
     /***
      * Compute salt to be used for compute password storage hash.
-     * Sample Request: curl 'http://localhost:8080/compute-salt' -X POST -H "Content-type: application/json"  -d '{"salt-size":"20"}'| json_pp
-     * @param kdfPasswordStorageEntity : "salt-size" parameter specified in bytes
+     * Sample Request: curl 'http://localhost:8080/compute-salt/{kdf_algo}' -s | json_pp
+     * @param kdf_algo : "kdf_algo" to be used for computing password hash
      * @return:
      * {
      *    "base64-salt" : "Ihg4MIicY8hrWhiBw7Ogf6FEUZ4=",
      *    "salt-size" : "20"
      * }
      */
-    @PostMapping(value="compute-salt",
-            produces = MediaType.APPLICATION_JSON_VALUE,
-            consumes = MediaType.APPLICATION_JSON_VALUE
+    @RequestMapping(value={"/compute-salt", "/compute-salt/{kdf_algo}"})
+    public KDFPasswordStorageEntity computeSalt(@PathVariable(required = false)String kdf_algo) {
 
-                )
-    public KDFPasswordStorageEntity computeSalt(@RequestBody KDFPasswordStorageEntity kdfPasswordStorageEntity) {
+        KDFPasswordStorageEntity kdfPasswordStorageEntity = new KDFPasswordStorageEntity();
+
+        int saltSize = 32;
+
+        if(kdf_algo == null) {kdfPasswordStorageEntity.setPasswdHashingAlgo("Argon2");}
+        else if(kdf_algo.equals("scrypt")){kdfPasswordStorageEntity.setPasswdHashingAlgo("scrypt");}
+        else if(kdf_algo.equals("bcrypt")) {saltSize = 16;kdfPasswordStorageEntity.setPasswdHashingAlgo("bcrypt");}
+        else if(kdf_algo.equals("pbkdf2")) {kdfPasswordStorageEntity.setPasswdHashingAlgo("pbkdf2");}
+
         SecureRandom drbgSecureRandom = secureRandomAPI.drbgSecureRandom();
-        byte[] salt = new byte[Integer.parseInt(kdfPasswordStorageEntity.getSaltSize())];
+        byte[] salt = new byte[saltSize];
         drbgSecureRandom.nextBytes(salt);
 
         kdfPasswordStorageEntity.setBase64Salt(Base64.getEncoder().encodeToString(salt));
@@ -69,7 +73,15 @@ public class PasswordStorageController {
             )
     public KDFPasswordStorageEntity computeKDFPassword(@RequestBody KDFPasswordStorageEntity kdfPasswordStorageEntity) {
 
-        if(kdfPasswordStorageEntity.getPasswdHashingAlgo().compareToIgnoreCase("pbkdf2") == 0) {
+        if(kdfPasswordStorageEntity.getPasswdHashingAlgo() == null) { // Default to Argon2
+            kdfPasswordStorageEntity.setBase64KDFPasswd(
+                    argon2idPasswdStorage.generatePasswdForStorage(
+                            kdfPasswordStorageEntity.getPlainTextPassword(),
+                            kdfPasswordStorageEntity.getBase64Salt()
+                    )
+            );
+        }
+        else if(kdfPasswordStorageEntity.getPasswdHashingAlgo().compareToIgnoreCase("pbkdf2") == 0) {
             kdfPasswordStorageEntity.setBase64KDFPasswd(
                     pbkdf2PasswdStorage.generatePasswdForStorage(
                             kdfPasswordStorageEntity.getPlainTextPassword(),
@@ -91,14 +103,14 @@ public class PasswordStorageController {
                     )
             );
         }
-        else { // If none of above, than argon2
+        /*else { // If none of above, than argon2
             kdfPasswordStorageEntity.setBase64KDFPasswd(
                     argon2idPasswdStorage.generatePasswdForStorage(
                         kdfPasswordStorageEntity.getPlainTextPassword(),
                             kdfPasswordStorageEntity.getBase64Salt()
                     )
             );
-        }
+        }*/
 
         return kdfPasswordStorageEntity;
     }
