@@ -34,9 +34,9 @@ public class DigitalSignatureController {
 
         KeyPair keyPair = null;
 
-        if (digital_signature_algo != null && digital_signature_algo.compareToIgnoreCase("ed-curve") == 0) {keyPair = asymmetricKeyGeneration.generateEdAsymmetricKey();digitalSignature.setAsymm_algo("ed-curve");}
-        else if(digital_signature_algo != null && digital_signature_algo.compareToIgnoreCase("eddsa") == 0){keyPair = asymmetricKeyGeneration.generateECAsymmetricKey();digitalSignature.setAsymm_algo("eddsa");}
-        else if(digital_signature_algo == null) {keyPair = asymmetricKeyGeneration.generateEdAsymmetricKey(); digitalSignature.setAsymm_algo("ed-curve");} // Defaults to Ed Curve
+        if (digital_signature_algo != null && digital_signature_algo.toLowerCase().contains("ed")) {keyPair = asymmetricKeyGeneration.generateEdAsymmetricKey();} // Edward Curves
+        else if(digital_signature_algo != null && digital_signature_algo.toLowerCase().startsWith("ecdsa")){keyPair = asymmetricKeyGeneration.generateECAsymmetricKey();} // EDDSA NIST curves
+        else if(digital_signature_algo == null) {keyPair = asymmetricKeyGeneration.generateEdAsymmetricKey(); } // Defaults to Ed Curve
 
         digitalSignature.setBase64EncodedPublicKey(Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()));
         digitalSignature.setBase64EncodedPrivateKey(Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded()));
@@ -63,13 +63,13 @@ public class DigitalSignatureController {
         )
     public DigitalSignature sign(@RequestBody DigitalSignature digitalSignature) {
 
-        if(digitalSignature.getAsymm_algo() != null && digitalSignature.getAsymm_algo().compareToIgnoreCase("ed-curve") == 0) { // Use Edward Curves
+        if(digitalSignature.getAsymm_algo() != null && digitalSignature.getAsymm_algo().toLowerCase().contains("ed")) { // Use Edward Curves
             digitalSignature.setBase64Signature(
                     edDigitalSignatureAPI.sign(
                             digitalSignature.getPlaintext_message(),
                             digitalSignature.getBase64EncodedPrivateKey())
             );
-        } else if(digitalSignature.getAsymm_algo() != null && digitalSignature.getAsymm_algo().compareToIgnoreCase("eddsa") == 0){
+        } else if(digitalSignature.getAsymm_algo() != null && digitalSignature.getAsymm_algo().toLowerCase().startsWith("ecdsa")){
             digitalSignature.setBase64Signature(
                     ecDigitalSignatureAPI.sign(
                             digitalSignature.getPlaintext_message(),
@@ -108,7 +108,7 @@ public class DigitalSignatureController {
     )
     public DigitalSignature verify(@RequestBody DigitalSignature digitalSignature) {
 
-        if(digitalSignature.getAsymm_algo() != null && digitalSignature.getAsymm_algo().compareToIgnoreCase("ed-curve") == 0){ // Use Edward Curves
+        if(digitalSignature.getAsymm_algo() != null && digitalSignature.getAsymm_algo().toLowerCase().contains("ed")){ // Use Edward Curves
             digitalSignature.setVerified(
                     edDigitalSignatureAPI.verify(
                             digitalSignature.getPlaintext_message(),
@@ -116,7 +116,7 @@ public class DigitalSignatureController {
                             digitalSignature.getBase64Signature()
                     )
             );
-        } else if(digitalSignature.getAsymm_algo() != null && digitalSignature.getAsymm_algo().compareToIgnoreCase("eddsa") == 0){
+        } else if(digitalSignature.getAsymm_algo() != null && digitalSignature.getAsymm_algo().toLowerCase().startsWith("ecdsa")){
             digitalSignature.setVerified(
                     ecDigitalSignatureAPI.verify(digitalSignature.getPlaintext_message(),
                             digitalSignature.getBase64EncodedPublicKey(),

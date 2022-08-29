@@ -1,23 +1,22 @@
 package com.secure.crypto.password_storage;
 
+import com.secure.crypto.utils.ReadPropertiesFile;
 import org.bouncycastle.crypto.generators.SCrypt;
 import java.util.Base64;
 
 public class ScryptPasswdStorage {
 
-    private int BLOCK_SIZE = 16;
-    private int PARALLELIZATION = 1;
-    private int CPU_MEMORY_COST = 65536;
-    private int OUTPUT_LENGTH = 32;
+    private ReadPropertiesFile readPropertiesFile = new ReadPropertiesFile();
 
     public String generatePasswdForStorage(String plainTextPasswd, String salt) {
         byte[] passwd =  SCrypt.generate(
                 plainTextPasswd.getBytes(),
                 Base64.getDecoder().decode(salt),
-                CPU_MEMORY_COST,
-                BLOCK_SIZE ,
-                PARALLELIZATION,
-                OUTPUT_LENGTH);
+                Integer.parseInt(readPropertiesFile.getValue("CPU_MEMORY_COST")),
+                Integer.parseInt(readPropertiesFile.getValue("BLOCK_SIZE")) ,
+                Integer.parseInt(readPropertiesFile.getValue("PARALLELIZATION")),
+                Integer.parseInt(readPropertiesFile.getValue("OUTPUT_LENGTH"))
+                );
 
         return Base64.getEncoder().encodeToString(passwd);
 

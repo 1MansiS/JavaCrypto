@@ -40,10 +40,7 @@ public class PasswordStorageController {
 
         int saltSize = 32;
 
-        if(kdf_algo == null) {kdfPasswordStorageEntity.setPasswdHashingAlgo("Argon2");}
-        else if(kdf_algo.equals("scrypt")){kdfPasswordStorageEntity.setPasswdHashingAlgo("scrypt");}
-        else if(kdf_algo.equals("bcrypt")) {saltSize = 16;kdfPasswordStorageEntity.setPasswdHashingAlgo("bcrypt");}
-        else if(kdf_algo.equals("pbkdf2")) {kdfPasswordStorageEntity.setPasswdHashingAlgo("pbkdf2");}
+        if(kdf_algo != null && kdf_algo.toLowerCase().startsWith("bcrypt")) {saltSize = 16;}
 
         SecureRandom drbgSecureRandom = secureRandomAPI.drbgSecureRandom();
         byte[] salt = new byte[saltSize];
@@ -81,21 +78,21 @@ public class PasswordStorageController {
                     )
             );
         }
-        else if(kdfPasswordStorageEntity.getPasswdHashingAlgo().compareToIgnoreCase("pbkdf2") == 0) {
+        else if(kdfPasswordStorageEntity.getPasswdHashingAlgo().toLowerCase().startsWith("pbkdf")) {
             kdfPasswordStorageEntity.setBase64KDFPasswd(
                     pbkdf2PasswdStorage.generatePasswdForStorage(
                             kdfPasswordStorageEntity.getPlainTextPassword(),
                             kdfPasswordStorageEntity.getBase64Salt()
                     )
             );
-        } else if(kdfPasswordStorageEntity.getPasswdHashingAlgo().compareToIgnoreCase("bcrypt") == 0) {
+        } else if(kdfPasswordStorageEntity.getPasswdHashingAlgo().toLowerCase().startsWith("bcrypt")) {
             kdfPasswordStorageEntity.setBase64KDFPasswd(
                     bcryptPasswdStorage.generatePasswdForStorage(
                             kdfPasswordStorageEntity.getPlainTextPassword(),
                             kdfPasswordStorageEntity.getBase64Salt()
                     )
             );
-        } else if(kdfPasswordStorageEntity.getPasswdHashingAlgo().compareToIgnoreCase("scrypt") ==0) {
+        } else if(kdfPasswordStorageEntity.getPasswdHashingAlgo().toLowerCase().startsWith("scrypt")) {
             kdfPasswordStorageEntity.setBase64KDFPasswd(
                     scryptPasswdStorage.generatePasswdForStorage(
                             kdfPasswordStorageEntity.getPlainTextPassword(),
@@ -103,14 +100,6 @@ public class PasswordStorageController {
                     )
             );
         }
-        /*else { // If none of above, than argon2
-            kdfPasswordStorageEntity.setBase64KDFPasswd(
-                    argon2idPasswdStorage.generatePasswdForStorage(
-                        kdfPasswordStorageEntity.getPlainTextPassword(),
-                            kdfPasswordStorageEntity.getBase64Salt()
-                    )
-            );
-        }*/
 
         return kdfPasswordStorageEntity;
     }

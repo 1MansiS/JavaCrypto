@@ -18,7 +18,7 @@ public class KDFPasswordStorageEntity {
     private String plainTextPassword;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonProperty("kdf-algo")
+    @JsonProperty(value="kdf-algo")
     private String passwdHashingAlgo;
 
     public String getBase64Salt() {

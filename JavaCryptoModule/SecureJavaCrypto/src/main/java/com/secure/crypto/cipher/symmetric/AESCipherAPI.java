@@ -1,6 +1,7 @@
 package com.secure.crypto.cipher.symmetric;
 
 import com.secure.crypto.secure_random.SecureRandomAPI;
+import com.secure.crypto.utils.ReadPropertiesFile;
 
 import javax.crypto.*;
 import javax.crypto.spec.GCMParameterSpec;
@@ -10,16 +11,14 @@ import java.util.Base64;
 
 public class AESCipherAPI {
 
-    private String AES_ENC_TRANSFORMATION_STRING = "AES/GCM/NoPadding";
-    private String AES_ENC_ALGO = "AES";
-    private int TAG_BIT_LENGTH=128; // Needed for GCM mode
+    private ReadPropertiesFile readPropertiesFile = new ReadPropertiesFile();
 
     /***
      * Encrypt using AES-GCM Authenticated Encryption with Associated Data
      * @param base64EncodeKey : Symmetric Key, base64 encoded
      * @param initializationVector : Initialization Vector
      * @param aad : Associated Data
-     * @param plainText : Plain Text message to be encoded
+     * @param plainText : Plain Text message to be encrypted
      * @return : Cipher Text, base64 encoded
      */
     public String encrypt(String base64EncodeKey, String initializationVector, String aad, String plainText) {
@@ -64,17 +63,17 @@ public class AESCipherAPI {
 
         // Initialize GCM Parameters
         // Same base64EncodeKey, IV and GCM Specs are to be used for encryption and decryption.
-        GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(TAG_BIT_LENGTH, Base64.getDecoder().decode(base64EncodedIV));
+        GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(Integer.parseInt(readPropertiesFile.getValue("TAG_BIT_LENGTH")), Base64.getDecoder().decode(base64EncodedIV));
 
         try {
-            cipher = Cipher.getInstance(AES_ENC_TRANSFORMATION_STRING);
-        } catch (NoSuchAlgorithmException |NoSuchPaddingException e) {System.out.println("Exception: While trying to get Cipher instance with " + AES_ENC_TRANSFORMATION_STRING + "transformation. Error message " + e.getMessage()); }
+            cipher = Cipher.getInstance(readPropertiesFile.getValue("AES_ENC_TRANSFORMATION_STRING"));
+        } catch (NoSuchAlgorithmException |NoSuchPaddingException e) {System.out.println("Exception: While trying to get Cipher instance with " + readPropertiesFile.getValue("AES_ENC_TRANSFORMATION_STRING") + "transformation. Error message " + e.getMessage()); }
 
-        SecretKey aesKey = new SecretKeySpec(Base64.getDecoder().decode(base64EncodeKey),AES_ENC_ALGO);
+        SecretKey aesKey = new SecretKeySpec(Base64.getDecoder().decode(base64EncodeKey), readPropertiesFile.getValue("DEFAULT_ENC_ALGO"));
 
         try {
             cipher.init(mode, aesKey, gcmParameterSpec, aesRandomizer.drbgSecureRandom()); // Using DRBG mechanism based CSPRNG
-        } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {System.out.println("Exception: While trying to instantiate Cipher with " +AES_ENC_TRANSFORMATION_STRING + "transformation for encryption. Error message " + e.getMessage()); }
+        } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {System.out.println("Exception: While trying to instantiate Cipher with " +readPropertiesFile.getValue("AES_ENC_TRANSFORMATION_STRING") + "transformation for encryption. Error message " + e.getMessage()); }
 
         cipher.updateAAD(aad.getBytes()); // add AAD tag data before encrypting or decryption
 

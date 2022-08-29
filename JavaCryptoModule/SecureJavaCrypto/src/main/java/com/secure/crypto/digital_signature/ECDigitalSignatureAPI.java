@@ -1,5 +1,7 @@
 package com.secure.crypto.digital_signature;
 
+import com.secure.crypto.utils.ReadPropertiesFile;
+
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -7,11 +9,13 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 public class ECDigitalSignatureAPI {
-    private String ECC_ALGO = "SHA512withECDSA";
-    private String ECC_ALGO_KEY_NAME = "EC";
+
+    private ReadPropertiesFile readPropertiesFile = new ReadPropertiesFile();
+    private String ECC_ALGO = readPropertiesFile.getValue("ECC_ALGO");
+    private String ECC_ALGO_KEY_NAME = readPropertiesFile.getValue("ECC_ALGO_KEY_NAME");
 
     /***
-     * This method digitally signs input plain text message using Edward Curve Ed25519.
+     * This method digitally signs input plain text message using ECDSA using NIST curves.
      * @param message : Plain text message to be signed
      * @param base64PrivateKey : Generated private key (base64)
      * @return : base64 encoded signature

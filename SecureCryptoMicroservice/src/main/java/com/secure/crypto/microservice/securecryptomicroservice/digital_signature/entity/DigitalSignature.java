@@ -42,10 +42,10 @@ public class DigitalSignature {
 
         if(
                 !((asymm_algo.toLowerCase().equals("ed-curve")) ||
-                (asymm_algo.toLowerCase().equals("eddsa")))
+                (asymm_algo.toLowerCase().equals("ecdsa")))
 
         ) {
-            throw new RuntimeException(asymm_algo + " should be either ed-curve or eddsa");
+            throw new RuntimeException(asymm_algo + " should be either ed-curve or ecdsa");
         }
         this.asymm_algo = asymm_algo;
     }

@@ -12,10 +12,11 @@ public class MessageDigestController {
     private MessageDigestAPI messageDigestAPI = new MessageDigestAPI();
 
     /***
-     * This endpoint computes SHA3-512 digest if input message.
+     * This endpoint computes SHA3-512 digest of input message.
      * Sample Request: curl 'http://localhost:8080/digest' -X POST -H "Content-type: application/json" -d '{"message":"Hello Hashing!!!"}' | json_pp
      *
-     * @param digest : Should pass "message" parameter
+     * @param message : Should pass "message" parameter
+     * @param hashing-algo : Optional hashing algo
      * @return : Returns base64 encoded hash string
      * Sample Response:
      * {
@@ -29,7 +30,8 @@ public class MessageDigestController {
                 )
     public Digest computeMessageDigest(@RequestBody Digest digest) {
         digest.setHash(
-                messageDigestAPI.generateMessageDigest(digest.getMessage(), digest.getHashingAlgo())
+                messageDigestAPI.generateMessageDigest(digest.getMessage(),
+                        digest.getHashingAlgo())
         );
 
         return digest;

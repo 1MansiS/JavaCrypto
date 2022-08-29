@@ -1,7 +1,6 @@
 package com.secure.crypto.microservice.securecryptomicroservice.cipher.symmetric.controller;
 
-import com.secure.crypto.cipher.symmetric.AESCipherAPI;
-import com.secure.crypto.cipher.symmetric.ChaChaCipherAPI;
+import com.secure.crypto.cipher.symmetric.CipherAPI;
 import com.secure.crypto.key_generation.SymmetricKeyGeneration;
 import com.secure.crypto.microservice.securecryptomicroservice.cipher.symmetric.entity.SymmetricEncryption;
 import com.secure.crypto.secure_random.SecureRandomAPI;
@@ -17,9 +16,7 @@ public class SymmetricEncryptionController {
 
     SymmetricKeyGeneration symmetricKeyGeneration = new SymmetricKeyGeneration();
     SecureRandomAPI secureRandomAPI = new SecureRandomAPI();
-    AESCipherAPI aesCipherAPI = new AESCipherAPI();
-    ChaChaCipherAPI chaChaCipherAPI = new ChaChaCipherAPI();
-
+    CipherAPI cipherAPI = new CipherAPI();
 
     /**
      * This endpoint generates all the required encryption parameter depending on AES or ChaCha20 algorithm. If no algorithm is provided it defaults to AES.
@@ -46,9 +43,9 @@ public class SymmetricEncryptionController {
 
         int ivSize = 16; // Defaults to AES, which has key size = 16.
         
-        if(enc_algo != null && enc_algo.compareToIgnoreCase("ChaCha20") == 0){ivSize = 12;} // ChaCha20 needs IV == 12
-        else if(enc_algo != null && enc_algo.compareToIgnoreCase("AES") == 0) {ivSize = 16; }
-        else if(enc_algo == null) {ivSize = 16; symmetricEncryption.setEncAlgo("AES"); }
+        if(enc_algo != null && enc_algo.toLowerCase().startsWith("chacha")){ivSize = 12;} // ChaCha20 needs IV == 12
+        else if(enc_algo != null && enc_algo.toLowerCase().startsWith("AES")) {ivSize = 16; }
+        else if(enc_algo == null) {ivSize = 16; }
 
         byte[] iv = new byte[ivSize];
         SecureRandom secureRandom = secureRandomAPI.drbgSecureRandom();
@@ -56,7 +53,6 @@ public class SymmetricEncryptionController {
         symmetricEncryption.setBase64EncodeIV(Base64.getEncoder().encodeToString(iv));
 
         // We can figure out the Enc Algo from the length of IV, so no need to setEncAlgo for later use
-
         return symmetricEncryption;
     }
 
@@ -80,28 +76,17 @@ public class SymmetricEncryptionController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     public SymmetricEncryption encrypt(@RequestBody SymmetricEncryption symmetricEncryption) {
 
-        if(Base64.getDecoder().decode(symmetricEncryption.getBase64EncodeIV()).length == 16) {symmetricEncryption.setEncAlgo("AES");}
-        else {symmetricEncryption.setEncAlgo("ChaCha20");}
+        symmetricEncryption.setBase64EncodedEncryptedCipherText(
+                cipherAPI.encrypt(
+                    symmetricEncryption.getBase64EncodedKey(),
+                    symmetricEncryption.getBase64EncodeIV(),
+                    symmetricEncryption.getAad(),
+                    symmetricEncryption.getPlainText()
+                )
+        );
 
-        if (symmetricEncryption.getEncAlgo().compareToIgnoreCase("AES") == 0) {
-            symmetricEncryption.setBase64EncodedEncryptedCipherText(
-                    aesCipherAPI.encrypt(
-                            symmetricEncryption.getBase64EncodedKey(),
-                            symmetricEncryption.getBase64EncodeIV(),
-                            symmetricEncryption.getAad(),
-                            symmetricEncryption.getPlainText()
-                    )
-            );
-        } else { // Its ChaCha20-Poly1305
-            symmetricEncryption.setBase64EncodedEncryptedCipherText(
-                    chaChaCipherAPI.encrypt(symmetricEncryption.getBase64EncodedKey(),
-                            symmetricEncryption.getBase64EncodeIV(),
-                            symmetricEncryption.getPlainText()
-                    )
-            );
-        }
+        return symmetricEncryption;
 
-        return  symmetricEncryption;
     }
 
     /***
@@ -124,26 +109,13 @@ public class SymmetricEncryptionController {
     )
     public SymmetricEncryption decrypt(@RequestBody SymmetricEncryption symmetricEncryption) {
 
-        if(Base64.getDecoder().decode(symmetricEncryption.getBase64EncodeIV()).length == 16){symmetricEncryption.setEncAlgo("AES");}
-        else {symmetricEncryption.setEncAlgo("ChaCha20");}
-
-        if(symmetricEncryption.getEncAlgo().compareToIgnoreCase("AES") == 0) {
-                symmetricEncryption.setPlainText(
-                        aesCipherAPI.decrypt(symmetricEncryption.getBase64EncodedKey(),
+        symmetricEncryption.setPlainText(
+                cipherAPI.decrypt(symmetricEncryption.getBase64EncodedKey(),
                         symmetricEncryption.getBase64EncodeIV(),
                         symmetricEncryption.getAad(),
                         symmetricEncryption.getBase64EncodedEncryptedCipherText()
-                        )
-                );
-        } else { // Its ChaCha20-Poly1305
-            symmetricEncryption.setPlainText(
-                    chaChaCipherAPI.decrypt(
-                            symmetricEncryption.getBase64EncodedKey(),
-                            symmetricEncryption.getBase64EncodeIV(),
-                            symmetricEncryption.getBase64EncodedEncryptedCipherText()
-                    )
-            );
-        }
+                )
+        );
 
         return symmetricEncryption;
     }

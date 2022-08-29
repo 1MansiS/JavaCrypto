@@ -1,5 +1,7 @@
 package com.secure.crypto.message_digest;
 
+import com.secure.crypto.utils.ReadPropertiesFile;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -9,8 +11,7 @@ import java.util.Base64;
 
 public class MessageDigestAPI {
 
-    private String MD_ALGO="SHA3-512";
-    private int MD_DATA_READ_BUFF=8192;
+    private ReadPropertiesFile readPropertiesFile = new ReadPropertiesFile();
 
     /*
     This API generates the message digest on input data, using configured Message Digest algorithm.
@@ -23,8 +24,8 @@ public class MessageDigestAPI {
 
         BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(data.getBytes()));
 
-        byte[] buff = new byte[MD_DATA_READ_BUFF]; // read configured no of bytes at a time
-        if(hashingAlgo == null) {hashingAlgo = MD_ALGO;}
+        byte[] buff = new byte[Integer.parseInt(readPropertiesFile.getValue("MD_DATA_READ_BUFF"))]; // read configured no of bytes at a time
+        if(hashingAlgo == null) {hashingAlgo = readPropertiesFile.getValue("MD_ALGO");}
 
         int count = 0;
 

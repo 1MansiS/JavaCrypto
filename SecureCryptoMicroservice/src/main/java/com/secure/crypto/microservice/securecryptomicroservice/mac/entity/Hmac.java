@@ -2,9 +2,6 @@ package com.secure.crypto.microservice.securecryptomicroservice.mac.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 public class Hmac {
 
@@ -17,7 +14,7 @@ public class Hmac {
     private String base64SymmetricKey;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonProperty("mac")
+    @JsonProperty(value="mac")
     private String mac;
 
     public String getMessage() {

@@ -1,58 +1,38 @@
 package com.secure.crypto.microservice.securecryptomicroservice.mac.controller;
 
-import com.secure.crypto.key_generation.SymmetricKeyGeneration;
 import com.secure.crypto.mac.MACComputationAPI;
 import com.secure.crypto.microservice.securecryptomicroservice.mac.entity.Hmac;
-import com.secure.crypto.secure_random.SecureRandomAPI;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.security.SecureRandom;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class HmacController {
 
-    private SecureRandomAPI secureRandomAPI = new SecureRandomAPI();
-    private SymmetricKeyGeneration symmetricKeyGeneration = new SymmetricKeyGeneration();
     private MACComputationAPI macComputationAPI = new MACComputationAPI();
-
-    private String HMAC_ALGO = "HmacSHA512" ;
-    private int HMAC_KEY_SIZE = 256;
 
     /***
      * Generate symmetric key, for configured HMAC algorithm and key size.
-     * This control is not give to user, since key size should always be less than block size of underlying hashing algorithm.
+     * Choosing key size is not give to user, since key size should always be less than block size of underlying hashing algorithm.
      * This same key should be used on sender and receiver size, and safeguarded.
-     * Sample Request: curl 'http://localhost:8080/compute-hmac-key' -X POST -H "Content-type: application/json" | json_pp
-     * @param  : No parameters are required to be passed
+     * Sample Request: curl 'http://localhost:8080/compute-hmac-key/{hmac_enc_algo}' -X POST -H "Content-type: application/json" | json_pp
+     * @param hmac_enc_algo : Optional Hmac algorithm to be used. Defaults to HmacSHA512, configured in JavaCrypto Module's DEFAULT_HMAC_ALGO property.
      * @return :
      * {
      *    "base64-symmetric-key" : "S20l/hZnaqoAvGx9CwdmJgeWOW7bsYJYPqebcECgMQs="
      * }
      *
      */
-    @GetMapping(value="compute-hmac-key",
-            produces = MediaType.APPLICATION_JSON_VALUE,
-            consumes = MediaType.APPLICATION_JSON_VALUE
-            )
-    public Hmac computeMacKey() {
+    @RequestMapping(value={"/compute-hmac-key","/compute-hmac-key/{hmac_enc_algo}"})
+    public Hmac computeMacKey(@PathVariable(required = false)String hmac_enc_algo) {
         Hmac hmac =  new Hmac();
 
-        SecureRandom drbgSecureRandom = secureRandomAPI.drbgSecureRandom();
-
         hmac.setBase64SymmetricKey(
-                symmetricKeyGeneration.generateSymmetricKey(
-                        HMAC_ALGO,
-                        HMAC_KEY_SIZE,
-                        drbgSecureRandom
-                )
+                macComputationAPI.computeMacKey(hmac_enc_algo)
         );
 
         return hmac;
     }
+
     /***
      * Computes MAC for passed plain text message, using computed symmetric key.
      * Sample Request: curl 'http://localhost:8080/compute-hmac' -X POST -H "Content-type: application/json" -d '{"message":"Hello MAC!!!","base64-symmetric-key":"S20l/hZnaqoAvGx9CwdmJgeWOW7bsYJYPqebcECgMQs="}' | json_pp
@@ -75,7 +55,7 @@ public class HmacController {
                 macComputationAPI.computeMac(
                         hmac.getBase64SymmetricKey(),
                         hmac.getMessage(),
-                        HMAC_ALGO
+                        hmac.getMac()
                 )
         );
 

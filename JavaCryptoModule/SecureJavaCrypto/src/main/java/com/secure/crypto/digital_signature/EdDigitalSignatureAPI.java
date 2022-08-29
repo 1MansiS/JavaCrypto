@@ -1,5 +1,7 @@
 package com.secure.crypto.digital_signature;
 
+import com.secure.crypto.utils.ReadPropertiesFile;
+
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -7,7 +9,9 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 public class EdDigitalSignatureAPI {
-    private String EDDSA_ALGO = "Ed25519";
+    private ReadPropertiesFile readPropertiesFile = new ReadPropertiesFile();
+
+    private String EDDSA_ALGO = readPropertiesFile.getValue("EDDSA_ALGO");
 
     /***
      * This method digitally signs input plain text message using Edward Curve Ed25519.

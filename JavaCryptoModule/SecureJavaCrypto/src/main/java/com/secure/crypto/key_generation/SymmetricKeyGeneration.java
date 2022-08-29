@@ -1,5 +1,7 @@
 package com.secure.crypto.key_generation;
 
+import com.secure.crypto.utils.ReadPropertiesFile;
+
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
@@ -8,6 +10,7 @@ import java.util.Base64;
 
 public class SymmetricKeyGeneration {
 
+    private ReadPropertiesFile readPropertiesFile = new ReadPropertiesFile();
     /***
      * Returns a Base64 encoded Symmetric Key of provided algorithm and key size.
      * @param encryptionAlgo supported encrypted algorithm
@@ -20,7 +23,7 @@ public class SymmetricKeyGeneration {
         SecretKey secretKey = null;
         KeyGenerator keyGenerator = null ;
 
-        if(encryptionAlgo == null) {encryptionAlgo = "AES";}
+        if(encryptionAlgo == null) {encryptionAlgo = readPropertiesFile.getValue("DEFAULT_ENC_ALGO");}
         else {encryptionAlgo = "ChaCha20";}
 
         // Preparing Key generation object

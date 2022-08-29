@@ -1,5 +1,7 @@
 package com.secure.crypto.password_storage;
 
+import com.secure.crypto.utils.ReadPropertiesFile;
+
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.security.NoSuchAlgorithmException;
@@ -8,10 +10,7 @@ import java.util.Base64;
 
 public class PBKDF2PasswdStorage {
 
-    private int ITERATION_COUNT = 150000;
-    private int DERIVED_KEY_LENGTH = 32; // specify in bytes
-
-    private String PBKDF_ALGO = "PBKDF2WithHmacSHA512";
+    private ReadPropertiesFile readPropertiesFile = new ReadPropertiesFile();
 
     /*
     This API, returns PBKDF2 version of plain text password ready for storage
@@ -30,15 +29,15 @@ public class PBKDF2PasswdStorage {
         try {
             keySpec = new PBEKeySpec(charEnteredPassword,
                                         Base64.getDecoder().decode(salt),
-                                        ITERATION_COUNT,
-                                        DERIVED_KEY_LENGTH * 8);
-        } catch(NullPointerException|IllegalArgumentException e) {System.out.println("One of the argument is illegal. Salt " + salt + " may be of 0 length, iteration count " + ITERATION_COUNT + " is not positive or derived key length " + DERIVED_KEY_LENGTH + " is not positive." ); System.out.println("Error :" + e.getMessage()); System.exit(0);}
+                                        Integer.parseInt(readPropertiesFile.getValue("ITERATION_COUNT")),
+                                        Integer.parseInt(readPropertiesFile.getValue("DERIVED_KEY_LENGTH")) * 8);
+        } catch(NullPointerException|IllegalArgumentException e) {System.out.println("One of the argument is illegal. Salt " + salt + " may be of 0 length, iteration count " + readPropertiesFile.getValue("ITERATION_COUNT") + " is not positive or derived key length " + readPropertiesFile.getValue("DERIVED_KEY_LENGTH") + " is not positive." ); System.out.println("Error :" + e.getMessage()); System.exit(0);}
 
         SecretKeyFactory pbkdfKeyFactory = null ;
 
         try {
-            pbkdfKeyFactory = SecretKeyFactory.getInstance(PBKDF_ALGO) ;
-        } catch (NullPointerException|NoSuchAlgorithmException e) {System.out.println("Specified algorithm " + PBKDF_ALGO + "is not available by the provider " + pbkdfKeyFactory.getProvider().getName());System.out.println("Error : " + e.getMessage()); System.exit(0);}
+            pbkdfKeyFactory = SecretKeyFactory.getInstance(readPropertiesFile.getValue("PBKDF_ALGO")) ;
+        } catch (NullPointerException|NoSuchAlgorithmException e) {System.out.println("Specified algorithm " + readPropertiesFile.getValue("PBKDF_ALGO") + "is not available by the provider " + pbkdfKeyFactory.getProvider().getName());System.out.println("Error : " + e.getMessage()); System.exit(0);}
 
         byte[] pbkdfHashedArray = null ;
 
