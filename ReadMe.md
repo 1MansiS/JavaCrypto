@@ -1,320 +1,211 @@
-Above code base, has a configurable Java Module (`JavaCryptoModule`), which exposes apis, responsible for performing various cryptographic primitives in a most secure way possible thru JCA. 
+# Overview
 
-This module has support for performing:
+JavaCrypto is easy-to-use, light-weight, modern library for all core cryptographic operations needed to build higher-level cryptographic tools. It's a drop-and-hook bundle of APIs responsible for performing various cryptographic primitives in the most secure way possible while using Java Cryptography Architecture (JCA). It includes APIs for:
 
-* symmetric encryption/decryption using AES-GCM and ChaCha20-Poly1305 crypto schemes, 
-* computing message digests, 
-* Computing Message Authentication Code
-* Signing and Verifying Digital Signatures using edward curves or EDDSA mechanism using NIST curves
-* Computing hashes using Key Derivation function PBKDF2
+	- Encryption & Decryption 
+	- Hashing
+	- Message Authentication Code
+	- Digital Signatures
+	- Password Storage etc
 
-`SecureCryptoMicroservice` showcases, in most simplistic way on how to use JavaCryptoModule. It should be thought as any kind of service for e.g. lambda, monolithic application, microservice etc which would need some cryptographic work.
 
-Docker image can be downloaded from [docker.hub](https://hub.docker.com/r/1mansis/javacrypto/), which should build and setup all above for anyone who wishes to experiment with this. 
+# Architecture
 
-# Requirements:
-- Java version 8 or above.
-- gradle build tool.
+`JavaCrypto` supports modern design principles and architecture. 
 
-# Building
+![JavaCrypto Architecture](doc/images/JavaCrypto-Architecture.png)
 
-## Step 1: Clone this repository
-`git clone https://github.com/1MansiS/JavaCrypto.git`
+It can be esily-injected using either:
 
-## Step 2: Build Crypto Module:
+1. **JavaCryptoModule:** This module provides all all of box cryptographic primitives as an API, mainly using Java Cryptography Architecture (JCA). Some of the APIs provided are:
+
+	* Generating a cryptographically secure pseudo random number, in an OS agnostic way
+	* Encryption and decryption
+	* Calculating message digests
+	* Calculating message authentication codes
+	* Signing and verifying digital signatures
+	* Secured password storage
+
+2 **SecureCryptoMicroservice:** Microservice wrapped around above module which exposes typical cryptographic use cases.
+
+3 **[1MansiS/JavaCrypto docker image](https://hub.docker.com/repository/docker/1mansis/javacrypto):** Easily deployable image in any microservice or cluster environment thru your CI/CD pipeline. This image is auto-published with each new code checkin to this repo via github action. 
+
+
+## Getting Started
+
+Quickest way to start experimenting with the JavaCrypto's REST APIs is to pull the docker image:
+
+```plaintext
+docker pull 1mansis/javacrypto
+docker run -p 8080:8080 1mansis/javacrypto
+```
+
+## Build Locally
+
+You can directly access the underlying APIs via the `JavaCryptoModule`. To build the module locally, just `git clone` this repository and:
 
 ```
 cd JavaCryptoModule/SecureJavaCrypto 
 gradle clean build
 ```
 
-## Step 3: (Optional) Only if planning to use the Microservice endpoints:
-
-Build the microservice:
+If you wish to access the underlying APIs via `SecureCryptoMicroservice`, you can 
 
 ```
 cd SecureCryptoMicroservice 
 gradle clean build
 ```
 
-To access these endpoints you can run it as:
+### Requirements:
 
+	- Java Version 18
+	- Gradle build tool
+
+
+
+## Everyday UseCases
+
+No better way to get cracking with any REST API than to use `curl`. Lets look at some everyday usecases using the latest docker image:
+
+### Authentication:
+
+Core of any good authentication system is making sure passwords are stored securely, so that in an unfortunate event of a breach, passwords aren't cracked offline. The most secure way to do this is by using a memory hard Key Derivative Function. Taking away all the complexities of choosing the right algorithm and choosing its secure parameters, below is how a typical Request/Response steps would look like:
+
+
+1. Generate Salt:
+
+Request:
+
+```plaintext
+curl 'http://localhost:8080/compute-salt' -s | json_pp
 ```
-java -jar build/libs/SecureCryptoMicroservice-0.0.2-SNAPSHOT.jar 
-```
-
-## Docker setup:
-
-All checkins to this repository triggers a github actions which building a docker image with latest checkins and pushes the image to docker hub. You can directly pick it up from there.
-
-```
-docker pull 1mansis/javacrypto
-docker run -p 8080:8080 1mansis/javacrypto
-```
-
-Depending on how you choose to use the module, follow corresponding sections below on how to use various micro service endpoints depicting cryptographic primitives:
-
-(**Note:** Used local microservice endpoints here. If you are using docker, change accordingly.)
-
-## Encryption/Decryption:
-
-```
-Step 1: Generating Symmetric Key:
-Request: curl 'http://localhost:8080/generateSymmetricKey' -X POST -H "Content-Type: application/json" -d '{"key_size":"256","enc_algo":"AES"}'
-Response: 
-{
-  "enc_algo" : "AES",
-  "symmetric_key" : "0pbH8pcnl51eAlUTLgcGCbR1FKFkBsLIFJ1kgAmne6Y=",
-  "key_size" : 256
-}
-
-Step 2: Generating Initialization Vector:
-Request: curl 'http://localhost:8080/generateInitializationVector' -X POST -H "Content-Type: application/json" -d '{"iv_size":"16"}'
-
-Response: 
-{
-  "iv_size" : 16,
-  "IV" : "qVsGLYhOnzBbDUIyTk595w=="
-}
-
-Step 3: Encryption
-Request: curl 'http://localhost:8080/encrypt' -X POST -H "Content-Type: application/json" -d '{"symmetric_key":"0pbH8pcnl51eAlUTLgcGCbR1FKFkBsLIFJ1kgAmne6Y=","IV":"qVsGLYhOnzBbDUIyTk595w==","plain_text":"Hello Crypto World!","aad":"localhost","enc_algo":"AES"}'
-
-Response: 
-
-{
-  "plain_text" : "Hello Crypto World!",
-  "base64_cipher_text" : "OvnpZsO0gzfZ+yRCugFWLSgl5MZmj4VZNX8tf00jCViWk4o=",
-  "symmetric_key" : "0pbH8pcnl51eAlUTLgcGCbR1FKFkBsLIFJ1kgAmne6Y=",
-  "aad" : "localhost",
-  "IV" : "qVsGLYhOnzBbDUIyTk595w==",
-  "enc_algo" : "AES"
-}
-
-Step 4: Decryption
-Request: curl 'http://localhost:8080/decrypt' -X POST -H "Content-Type: application/json" -d '{"symmetric_key":"0pbH8pcnl51eAlUTLgcGCbR1FKFkBsLIFJ1kgAmne6Y=","IV":"qVsGLYhOnzBbDUIyTk595w==","base64_cipher_text":"OvnpZsO0gzfZ+yRCugFWLSgl5MZmj4VZNX8tf00jCViWk4o=","enc_algo":"AES","aad":"localhost"}'
 
 Response:
 
+```plaintext
 {
-  "plain_text" : "Hello Crypto World!",
-  "enc_algo" : "AES",
-  "IV" : "qVsGLYhOnzBbDUIyTk595w==",
-  "base64_cipher_text" : "OvnpZsO0gzfZ+yRCugFWLSgl5MZmj4VZNX8tf00jCViWk4o=",
-  "aad" : "localhost",
-  "symmetric_key" : "0pbH8pcnl51eAlUTLgcGCbR1FKFkBsLIFJ1kgAmne6Y="
+   "base64-salt" : "UIneZVONMIM4nmliROlJkMu4zkJE73TfhvFit1GW0qs="
 }
 ```
 
+Using the salt generated above, compute the password hash to be stored in the database:
 
-## Message Digest:
 
-```
-Request:  curl 'http://localhost:8080/digest' -X POST -H "Content-type: application/json" -d '{"message":"Hello Hashing!!!"}' | json_pp
+2. Compute Hash, using above generated salt
 
-Response: 
-{
-   "hash" : "Mb9x21/z6XCh3OiwzWSfkxnybuKPRe0FiSqxLDkNDGRPcRzcvEHUrSRF6iseByz/qVtgXc3qYe4U1gWZkM2B7A==",
-   "message" : "Hello Hashing!!!"
-}
-```
-
-## Message Authentication Code (MAC):
+Request:
 
 ```
-Step 1: Generate symmetric key for computing MAC
-Request: curl 'http://localhost:8080/compute-hmac-key' -X POST -H "Content-type: application/json" | json_pp
+curl 'http://localhost:8080/compute-kdf-passwd' -X POST -H "Content-type: application/json" -s \
+-d '{"base64-salt":"UIneZVONMIM4nmliROlJkMu4zkJE73TfhvFit1GW0qs=",
+"passwd":"mysupersecretpasswordtobestored!!!"}'| json_pp
+```
 
 Response:
+
+```plaintext
 {
-   "base64-symmetric-key" : "CwyXz3ZymqD3eKzlo3xwmloL5WjEDAyF2iVC4L4xoHk="
+   "base64-kdf-passwd-hash" : "XdWuZ758kOai3/Mn6PmtVe1bSVtRvedpbO7KpwLFayo=",
+   "base64-salt" : "UIneZVONMIM4nmliROlJkMu4zkJE73TfhvFit1GW0qs=",
+   "passwd" : "mysupersecretpasswordtobestored!!!"
 }
-
-Step 2: Compute MAC
-Request: curl 'http://localhost:8080/compute-mac' -X POST -H "Content-type: application/json" -d '{"message":"Hello MAC!!!","base64-symmetric-key":"CwyXz3ZymqD3eKzlo3xwmloL5WjEDAyF2iVC4L4xoHk="}' | json_pp
-
-Response: 
-
-{
-   "message" : "Hello MAC!!!",
-   "base64-symmetric-key" : "CwyXz3ZymqD3eKzlo3xwmloL5WjEDAyF2iVC4L4xoHk=",
-   "mac" : "OWEjsI5RguL47XBjUPGvfla5z66P3lSt6puYpPUeosa7AFCU4+SDAWX4VrZ+xuukHOqoHS1smE8Kiixrut6BHA=="
-}
-
-
 ```
 
+### Encryption:
 
-## Digital Signature:
+There are often situations where we need to send encrypted information over the wires. Lets see how to take away all the complexities of using the secure Cipher scheme, padding, keying material, initialization vectors etc:
 
-```
-Step 1: Generating Keys based on edward curves or NIST curves:
-Request: curl -X POST 'http://localhost:8080/generateAsymmetricKey' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve"}' | json_pp
 
-Response: 
-{
- "asymm_algo" : "ed-curve",
- "base64_public_key" : "MCowBQYDK2VwAyEAW5CKDO5xEO5EVVIcMeBFJ0w4nI6MDmWjWEHgZ4Zqeoc=",
- "base64_private_key" : "MC4CAQAwBQYDK2VwBCIEIJtmYm8YaxQW50/LI8Uhf3ft1uUB7kKHbK7jF0Ze1SqF"
-}
+1. Generate Encryption Parameters:
 
-Step 2: Signing a message; generating Signature for plain text message
-Request: curl -X POST 'http://localhost:8080/sign' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve","base64_private_key":"MC4CAQAwBQYDK2VwBCIEIJtmYm8YaxQW50/LI8Uhf3ft1uUB7kKHbK7jF0Ze1SqF","plaintext_message":"Hello World!"}' | json_pp
+Leaving the default secure choices to the tool, we would need just initialization vector & symmetric key for an encryption scheme. 
 
-Response: 
-{
-  "plaintext_message" : "Hello World!",
-  "asymm_algo" : "ed-curve",
-  "base64_sign" : "FOh5uarkS3MMdkraAUJywSK8M/SXQbgbOjjze0zgsDzQ0QqH3++dbeev/WPdKdKXQwRDzY0v8rUKP1rDAL0MBQ==",
-  "base64_private_key" : "MC4CAQAwBQYDK2VwBCIEIJtmYm8YaxQW50/LI8Uhf3ft1uUB7kKHbK7jF0Ze1SqF"
-}
-
-Step 3: Verifying a message
-Request: curl -X POST 'http://localhost:8080/verify' -H  "Content-Type: application/json" -d '{"asymm_algo":"ed-curve","plaintext_message":"Hello World!","base64_public_key":"MCowBQYDK2VwAyEAW5CKDO5xEO5EVVIcMeBFJ0w4nI6MDmWjWEHgZ4Zqeoc=","base64_sign":"FOh5uarkS3MMdkraAUJywSK8M/SXQbgbOjjze0zgsDzQ0QqH3++dbeev/WPdKdKXQwRDzY0v8rUKP1rDAL0MBQ=="}' | json_pp
-
-Response: 
-{
-  "base64_sign" : "FOh5uarkS3MMdkraAUJywSK8M/SXQbgbOjjze0zgsDzQ0QqH3++dbeev/WPdKdKXQwRDzY0v8rUKP1rDAL0MBQ==",
-  "plaintext_message" : "Hello World!",
-  "asymm_algo" : "ed-curve",
-  "verified" : true,
-  "base64_public_key" : "MCowBQYDK2VwAyEAW5CKDO5xEO5EVVIcMeBFJ0w4nI6MDmWjWEHgZ4Zqeoc="
-}
+Request:
 
 ```
-
-## Secure Password Storage and Authentication
-
+curl 'http://localhost:8080/generate-encryption-parameters' -s | json_pp
 ```
-Compute Password using Argon2
-----------------------------
-Step 1: Generate salt of size 256 bits
-Request: curl 'http://localhost:8080//compute-salt' -X POST -H "Content-type: application/json" -d '{"salt-size":"32"}' | json_pp
 
 Response:
-{
-   "base64-salt" : "6hCkSssrQnRV5DIeMSE+0kPV83dFSTl/Mnf7C7Nf8Ng=",
-   "salt-size" : "32"
-}
 
-Step 2: Compute Hash, using above generated unique, csprng salt
-Request: curl 'http://localhost:8080/compute-kdf-passwd' -X POST -H "Content-type: application/json" -d '{"base64-salt":"6hCkSssrQnRV5DIeMSE+0kPV83dFSTl/Mnf7C7Nf8Ng=","passwd":"mysupersecretpasswordtobestored!!!","kdf-algo":"argon2"}' | json_pp
+```plaintext
+{
+   "base64_iv" : "FVRMdBrqSE7lLYCBkuTLZw==",
+   "base64_symmetric_key" : "ZsLQyM8bPqts+DFcFTVhy6WZ+jpw8NDx5oNZHjq5Io4="
+}
+```
+
+Using Symmetric Key and Initialization Vector generated in above request, lets see how to encrypt a secret message:
+
+
+2. Encrypt:
+
+Request:
+
+```plaintext
+curl 'http://localhost:8080/encrypt' -X POST -H "Content-Type: application/json" -d \
+'{"base64_iv" : "FVRMdBrqSE7lLYCBkuTLZw==",
+"base64_symmetric_key" : "ZsLQyM8bPqts+DFcFTVhy6WZ+jpw8NDx5oNZHjq5Io4=",
+"plain_text":"Hello Crypto World!",
+"aad":"localhost"}' -s | json_pp
+```
 
 Response:
+
+```plaintext
 {
-   "passwd" : "mysupersecretpasswordtobestored!!!",
-   "kdf-algo" : "argon2",
-   "base64-kdf-passwd-hash" : "7XwIqJB+uLU+L3+2TQEyNttYY7sxmb09N9drS09MMgQ=",
-   "base64-salt" : "6hCkSssrQnRV5DIeMSE+0kPV83dFSTl/Mnf7C7Nf8Ng="
+   "aad" : "localhost",
+   "base64_cipher_text" : "plMqkDjcqDHkeqvWnuYZH+L6Oysqf/7p4YRNdFrHWz9oqG8=",
+   "base64_iv" : "FVRMdBrqSE7lLYCBkuTLZw==",
+   "base64_symmetric_key" : "ZsLQyM8bPqts+DFcFTVhy6WZ+jpw8NDx5oNZHjq5Io4=",
+   "plain_text" : "Hello Crypto World!"
 }
+```
 
-Compute Password Using PBKDF2
------------------------------
+3. Decryption:
+Similarly, using above keying materials and cipher text, lets decrypt the plaintext back.
 
-Step 1: Generate salt of size 256 bits
-Request: curl 'http://localhost:8080//compute-salt' -X POST -H "Content-type: application/json" -d '{"salt-size":"32"}' | json_pp
+Request:
 
-Response: 
-{
-   "salt-size" : "32",
-   "base64-salt" : "hgb7F7/GhZWyfXSxEDHs2yxSbkD/jnpzBDBIXcs9Hzo="
-}
-
-Step 2: Compute Hash, using above generated unique, csprng salt
-Request: curl 'http://localhost:8080/compute-kdf-passwd' -X POST -H "Content-type: application/json" -d '{"base64-salt":"hgb7F7/GhZWyfXSxEDHs2yxSbkD/jnpzBDBIXcs9Hzo=","passwd":"mysupersecretpasswordtobestored!!!","kdf-algo":"pbkdf2"}' | json_pp
-
-Response: 
-{
-   "passwd" : "mysupersecretpasswordtobestored!!!",
-   "base64-salt" : "hgb7F7/GhZWyfXSxEDHs2yxSbkD/jnpzBDBIXcs9Hzo=",
-   "base64-kdf-passwd-hash" : "9lwl5Bue+uThp20QdfG88KKBhH5OAEv5ntH/ILVid7U=",
-   "kdf-algo" : "pbkdf2"
-}
-
-
-Compute Password Using bcrypt 
------------------------------
-
-Step 1: Generate salt of size 128 bits
-Request: curl 'http://localhost:8080//compute-salt' -X POST -H "Content-type: application/json" -d '{"salt-size":"16"}' | json_pp
+```plaintext
+curl 'http://localhost:8080/decrypt' -X POST -H "Content-Type: application/json" \
+-d '{"base64_iv":"FVRMdBrqSE7lLYCBkuTLZw==",
+    "base64_symmetric_key":"ZsLQyM8bPqts+DFcFTVhy6WZ+jpw8NDx5oNZHjq5Io4=",
+"aad":"localhost",
+"base64_cipher_text":"plMqkDjcqDHkeqvWnuYZH+L6Oysqf/7p4YRNdFrHWz9oqG8="}' -s | json_pp
+```
 
 Response:
+
+```plaintext
 {
-   "salt-size" : "16",
-   "base64-salt" : "b/D8O/B5BFrTkce1jzxZDw=="
-}
-
-Step 2: Compute Hash, using above generated unique, csprng salt
-Request: curl 'http://localhost:8080/compute-kdf-passwd' -X POST -H "Content-type: application/json" -d '{"base64-salt":"b/D8O/B5BFrTkce1jzxZDw==","passwd":"mysupersecretpasswordtobestored!!!","kdf-algo":"bcrypt"}' | json_pp
-
-Response: 
-{
-   "base64-salt" : "b/D8O/B5BFrTkce1jzxZDw==",
-   "kdf-algo" : "bcrypt",
-   "passwd" : "mysupersecretpasswordtobestored!!!",
-   "base64-kdf-passwd-hash" : "KM7Cq3GdjrWqYr/NZpqcXnXcu/Ksvuwr"
-}
-
-
-Compute Password Using scrypt 
------------------------------
-
-Step 1: Generate salt of size 256 bits
-Request: curl 'http://localhost:8080//compute-salt' -X POST -H "Content-type: application/json" -d '{"salt-size":"32"}' | json_pp 
-
-Response:
-{
-   "salt-size" : "32",
-   "base64-salt" : "k87h8D0cRV80Tu0ZhN3PBvgJ/ldLTtvvZBCuJYvOhFc="
-}
-
-
-Step 2: Compute Hash, using above generated unique, csprng salt
-Request: curl 'http://localhost:8080/compute-kdf-passwd' -X POST -H "Content-type: application/json" -d '{"base64-salt":"k87h8D0cRV80Tu0ZhN3PBvgJ/ldLTtvvZBCuJYvOhFc=","passwd":"mysupersecretpasswordtobestored!!!","kdf-algo":"scrypt"}' | json_pp
-
-Response:
-{
-   "kdf-algo" : "scrypt",
-   "base64-kdf-passwd-hash" : "ZkirenAEqtAoH0xh3A7dw7yUn5yglzxb2kbha4N1PoE=",
-   "passwd" : "mysupersecretpasswordtobestored!!!",
-   "base64-salt" : "k87h8D0cRV80Tu0ZhN3PBvgJ/ldLTtvvZBCuJYvOhFc="
-}
-
-```
-
-Key Management using Keystore:
------------------------------
-
-```
-Request: curl -X POST 'http://localhost:8080/store-secret-key' -H 'Content-Type: application/json' -d '{"key-store-password":"key-store-password","entry-password":"entry-password","alias":"alias"}' | json_pp
-
-Response: 
-{
-   "alias" : "alias",
-   "entry-password" : "entry-password",
-   "key-store-password" : "key-store-password",
-   "Response" : "Successfully saved Secret Key with alias alias"
+   "aad" : "localhost",
+   "base64_cipher_text" : "plMqkDjcqDHkeqvWnuYZH+L6Oysqf/7p4YRNdFrHWz9oqG8=",
+   "base64_iv" : "FVRMdBrqSE7lLYCBkuTLZw==",
+   "base64_symmetric_key" : "ZsLQyM8bPqts+DFcFTVhy6WZ+jpw8NDx5oNZHjq5Io4=",
+   "plain_text" : "Hello Crypto World!"
 }
 ```
 
-# Security Architecture Must-dos
-* A matured Key Management System (for e.g. AWS KMS, vault, Safenet etc), should be used for any kind of key material management (like encryption keys, initialization vectors, salts, password hashes etc) management. Just to keep above microservice, as a simple demo on how to use Java crypto module, I have taken various shortcuts. 
-* Every effort is being taken to keep above microservice stateless. This mitigates  complicated 2 way ssl, and certificate management. But, make sure all communication is happening over https.
 
-# Future wish list:
+# REST API Docs
 
-- Support for some quantum ready APIs.
-- IRL type of deployment using Istio + mTLS.
+While sending REST API requests, you must include `'Content-Type':'application/json'` in the HTTP header.
 
-# LICENSE
+## Encryption/Decryption
+[Encryption Decryption](doc/api/encryption_decryption.md)
 
-JavaCrypto is released under [MIT License](https://opensource.org/licenses/MIT)
+## Hashing
+[Hashing](doc/api/hashing.md)
 
-```
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-```
+## Message Authentication Code
+[Message Authentication Code](doc/api/message_authentication_code.md)
 
-# DISCLAIMER:
-JavaCrypto came into existance and matured over time more as a complimenting code reference for [Java Crypto blog series](https://1mansis.github.io) and numberous [conference talks](https://1mansis.github.io/SpeakingEngagements) on this topic. Not accepting any PR/bug reports at the moment. All work done as part of this is a personal project, so direct all complaints to me.
+## Digital Signatures
+[Digital Signatures](doc/api/digital_signature.md)
+
+## Password Storage
+[Password Storage](doc/api/password_storage.md)
+
+## Key Management
+[Key Management](doc/api/key_management.md)
