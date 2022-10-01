@@ -3,6 +3,8 @@ package com.secure.crypto.secure_random;
 import java.security.DrbgParameters;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.Security;
+
 import static java.security.DrbgParameters.Capability.PR_AND_RESEED;
 
 public class SecureRandomAPI {
@@ -20,6 +22,7 @@ public class SecureRandomAPI {
                                                                 // Prediction Resistance ==  compromise of the DRBG internal state has no effect on the security of future DRBG outputs.
                                                                 // Reseeding == Periodic reseeding, to avoid too many output from a seed
                                                     "any_hardcoded_string".getBytes()));
+            System.out.println("Entropy is being collected from " + Security.getProperty("securerandom.source"));
         } catch (NoSuchAlgorithmException e) { System.out.println("DRBG algorithm for generating CSPRNG is not supported"); }
 
         return drbgSecureRandom;
